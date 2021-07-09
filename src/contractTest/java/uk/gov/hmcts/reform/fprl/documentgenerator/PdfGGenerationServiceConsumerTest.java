@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator;
+package uk.gov.hmcts.reform.fprl.documentgenerator;
 
 
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
@@ -22,9 +22,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.util.ResourceUtils;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.request.GenerateDocumentRequest;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.PDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.service.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -23,9 +23,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.FileUploadResponse;
-import uk.gov.hmcts.reform.divorce.documentgenerator.exception.DocumentStorageException;
-import uk.gov.hmcts.reform.divorce.documentgenerator.util.NullOrEmptyValidator;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
+import uk.gov.hmcts.reform.fprl.documentgenerator.exception.DocumentStorageException;
+import uk.gov.hmcts.reform.fprl.documentgenerator.util.NullOrEmptyValidator;
 
 import java.util.Collections;
 import java.util.List;

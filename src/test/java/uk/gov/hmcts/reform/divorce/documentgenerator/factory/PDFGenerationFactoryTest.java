@@ -1,19 +1,19 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.factory;
+package uk.gov.hmcts.reform.fprl.documentgenerator.factory;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.documentgenerator.config.TemplatesConfiguration;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.PDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.PDF_GENERATOR_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.PDF_GENERATOR_TYPE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PDFGenerationFactoryTest {

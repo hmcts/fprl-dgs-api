@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.service.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
 import org.junit.Rule;
 import org.junit.Test;
@@ -9,10 +9,10 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.documentgenerator.config.TemplatesConfiguration;
-import uk.gov.hmcts.reform.divorce.documentgenerator.factory.PDFGenerationFactory;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.EvidenceManagementService;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.PDFGenerationService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
+import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.EvidenceManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.util.HashMap;
 import java.util.Map;

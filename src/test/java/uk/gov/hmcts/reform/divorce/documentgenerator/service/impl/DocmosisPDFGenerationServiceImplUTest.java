@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.service.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -19,9 +19,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.request.PdfDocumentRequest;
-import uk.gov.hmcts.reform.divorce.documentgenerator.exception.PDFGenerationException;
-import uk.gov.hmcts.reform.divorce.documentgenerator.util.NullOrEmptyValidator;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PdfDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.exception.PDFGenerationException;
+import uk.gov.hmcts.reform.fprl.documentgenerator.util.NullOrEmptyValidator;
 
 import java.util.Collections;
 import java.util.Map;

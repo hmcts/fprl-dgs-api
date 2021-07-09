@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.functionaltest;
+package uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

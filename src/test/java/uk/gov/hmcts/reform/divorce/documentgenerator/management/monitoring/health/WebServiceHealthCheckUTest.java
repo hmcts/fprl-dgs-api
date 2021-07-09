@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.management.monitoring.health;
+package uk.gov.hmcts.reform.fprl.documentgenerator.management.monitoring.health;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

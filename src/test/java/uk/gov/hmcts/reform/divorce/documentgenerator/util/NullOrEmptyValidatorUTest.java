@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.util;
+package uk.gov.hmcts.reform.fprl.documentgenerator.util;
 
 import org.apache.commons.lang3.ArrayUtils;
 import org.junit.Test;

@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.util;
+package uk.gov.hmcts.reform.fprl.documentgenerator.util;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Test;

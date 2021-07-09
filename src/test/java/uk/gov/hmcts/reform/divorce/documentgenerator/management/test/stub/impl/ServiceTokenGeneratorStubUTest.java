@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.management.test.stub.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.management.test.stub.impl;
 
 import org.junit.Test;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;

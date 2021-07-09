@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.controller;
+package uk.gov.hmcts.reform.fprl.documentgenerator.controller;
 
 import org.junit.Before;
 import org.junit.Test;

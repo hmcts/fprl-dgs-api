@@ -1,9 +1,9 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.mapper;
+package uk.gov.hmcts.reform.fprl.documentgenerator.mapper;
 
 import org.junit.Test;
 import org.springframework.http.HttpStatus;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.FileUploadResponse;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.GeneratedDocumentInfo;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;

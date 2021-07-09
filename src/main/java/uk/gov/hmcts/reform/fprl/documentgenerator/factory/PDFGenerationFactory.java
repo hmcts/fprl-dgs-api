@@ -5,7 +5,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
 
 import java.util.Map;
@@ -22,7 +21,7 @@ public class PDFGenerationFactory {
     @Autowired
     public PDFGenerationFactory(TemplatesConfiguration templatesConfiguration,
                                 PDFGenerationServiceImpl pdfGenerationService,
-                                DocmosisPDFGenerationServiceImpl docmosisPdfGenerationService) {
+                                uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPdfGenerationService docmosisPdfGenerationService) {
         this.templatesConfiguration = templatesConfiguration;
 
         // Setup generator type mapping against expected template map values

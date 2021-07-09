@@ -1,13 +1,13 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.controller;
+package uk.gov.hmcts.reform.fprl.documentgenerator.controller;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.request.GenerateDocumentRequest;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.DocumentManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
 
 import java.util.Collections;
 import java.util.Map;

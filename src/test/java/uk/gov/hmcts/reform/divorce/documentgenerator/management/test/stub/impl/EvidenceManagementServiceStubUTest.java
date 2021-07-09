@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.management.test.stub.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.management.test.stub.impl;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -7,7 +7,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.FileUploadResponse;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
 
 import java.time.Clock;
 import java.time.Instant;

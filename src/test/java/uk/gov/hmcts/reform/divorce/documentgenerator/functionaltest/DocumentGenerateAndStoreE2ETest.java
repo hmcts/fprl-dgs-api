@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.functionaltest;
+package uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,14 +25,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
-import uk.gov.hmcts.reform.divorce.documentgenerator.DocumentGeneratorApplication;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.CcdCollectionMember;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.request.GenerateDocumentRequest;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.FileUploadResponse;
-import uk.gov.hmcts.reform.divorce.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.DocumentManagementServiceImpl;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.PDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.CcdCollectionMember;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocumentManagementServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
 
 import java.text.SimpleDateFormat;
 import java.time.Clock;
@@ -53,10 +53,10 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.DECREE_ABSOLUTE_ELIGIBLE_FROM_DATE_KEY;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.DECREE_NISI_GRANTED_DATE_KEY;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.DN_REFUSAL_ORDER_CLARIFICATION_TEMPLATE_ID;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConstants.DN_REFUSAL_ORDER_REJECTION_TEMPLATE_ID;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DECREE_ABSOLUTE_ELIGIBLE_FROM_DATE_KEY;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DECREE_NISI_GRANTED_DATE_KEY;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DN_REFUSAL_ORDER_CLARIFICATION_TEMPLATE_ID;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DN_REFUSAL_ORDER_REJECTION_TEMPLATE_ID;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = DocumentGeneratorApplication.class)
@@ -68,30 +68,13 @@ import static uk.gov.hmcts.reform.divorce.documentgenerator.domain.TemplateConst
 @AutoConfigureMockMvc
 public class DocumentGenerateAndStoreE2ETest {
     private static final String API_URL = "/version/1/generatePDF";
+
     private static final String CURRENT_DATE_KEY = "current_date";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-    private static final String A_TEMPLATE = "divorceminipetition";
-    private static final String COE_TEMPLATE = "FL-DIV-GNO-ENG-00020.docx";
-    private static final String DECREE_NISI_TEMPLATE = "FL-DIV-GNO-ENG-00021.docx";
-    private static final String COSTS_ORDER_TEMPLATE = "FL-DIV-DEC-ENG-00060.docx";
-    private static final String COSTS_ORDER_JUDGE_TEMPLATE = "FL-DIV-DEC-ENG-00711.docx";
-    private static final String COSTS_ORDER_JUDGE_WELSH_TEMPLATE = "FL-DIV-DEC-WEL-00712.docx";
-    private static final String DECREE_ABSOLUTE_TEMPLATE = "FL-DIV-GOR-ENG-00062.docx";
-    private static final String CASE_LIST_FOR_PRONOUNCEMENT_TEMPLATE_ID = "FL-DIV-GNO-ENG-00059.docx";
-    private static final String AOS_OFFLINE_INVITATION_LETTER_RESPONDENT_TEMPLATE_ID = "FL-DIV-LET-ENG-00075.doc";
-    private static final String AOS_OFFLINE_INVITATION_LETTER_CO_RESPONDENT_TEMPLATE_ID = "FL-DIV-LET-ENG-00076.doc";
-    private static final String AOS_OFFLINE_2_YEAR_SEPARATION_FORM_TEMPLATE_ID = "FL-DIV-APP-ENG-00080.docx";
-    private static final String AOS_OFFLINE_5_YEAR_SEPARATION_FORM_TEMPLATE_ID = "FL-DIV-APP-ENG-00081.docx";
-    private static final String AOS_OFFLINE_BEHAVIOUR_DESERTION_TEMPLATE_ID = "FL-DIV-APP-ENG-00082.docx";
-    private static final String AOS_OFFLINE_ADULTERY_FORM_RESPONDENT_TEMPLATE_ID = "FL-DIV-APP-ENG-00083.docx";
-    private static final String AOS_OFFLINE_ADULTERY_FORM_CO_RESPONDENT_TEMPLATE_ID = "FL-DIV-APP-ENG-00084.docx";
+    private static final String A_TEMPLATE = "dummy-document";
 
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
-    private static final String CLAIM_COSTS_JSON_KEY = "D8DivorceCostsClaim";
-    private static final String CLAIM_COSTS_FROM_JSON_KEY = "D8DivorceClaimFrom";
-    private static final String COURT_HEARING_JSON_KEY = "DateAndTimeOfHearing";
-    private static final String DN_APPROVAL_DATE_KEY = "DNApprovalDate";
 
     private static final String FILE_URL = "fileURL";
     private static final String MIME_TYPE = "mimeType";
@@ -103,9 +86,6 @@ public class DocumentGenerateAndStoreE2ETest {
 
     @Autowired
     private MockMvc webClient;
-
-    @Value("${service.pdf-service.uri}")
-    private String pdfServiceUri;
 
     @Value("${docmosis.service.pdf-service.uri}")
     private String docmosisPdfServiceUri;
@@ -143,7 +123,7 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
@@ -157,7 +137,7 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
@@ -171,7 +151,7 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
@@ -186,7 +166,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isServiceUnavailable());
@@ -201,7 +181,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
@@ -238,7 +218,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(objectMapper.writeValueAsString(requestToPDFService)).thenThrow(mock(JsonProcessingException.class));
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError());
@@ -258,7 +238,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isServiceUnavailable());
@@ -278,7 +258,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError());
@@ -298,7 +278,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
@@ -319,7 +299,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isServiceUnavailable());
@@ -340,7 +320,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
@@ -363,7 +343,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isInternalServerError());
@@ -389,13 +369,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -420,13 +401,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -450,13 +432,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -480,13 +463,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -511,13 +495,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -542,13 +527,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -573,13 +559,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -605,13 +592,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -640,13 +628,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -677,13 +666,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -714,13 +704,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -751,13 +742,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -788,13 +780,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -825,13 +818,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -862,13 +856,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -899,13 +894,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -936,13 +932,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -972,7 +969,7 @@ public class DocumentGenerateAndStoreE2ETest {
             new GenerateDocumentRequest(COE_TEMPLATE, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().is5xxServerError())
@@ -1039,7 +1036,7 @@ public class DocumentGenerateAndStoreE2ETest {
         //When
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(templateId, values);
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -1047,7 +1044,7 @@ public class DocumentGenerateAndStoreE2ETest {
 
         //Then
         final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo), result.getResponse().getContentAsString());
+        assertEquals(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo), result.getResponse().getContentAsString());
         mockRestServiceServer.verify();
     }
 
@@ -1073,13 +1070,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -1107,13 +1105,14 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+            .content(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
+        assertEquals(
+            uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
             result.getResponse().getContentAsString());
 
         mockRestServiceServer.verify();
@@ -1146,14 +1145,14 @@ public class DocumentGenerateAndStoreE2ETest {
     private void mockPDFService(HttpStatus expectedResponse, byte[] body) {
         mockRestServiceServer.expect(once(), requestTo(pdfServiceUri)).andExpect(method(HttpMethod.POST))
             .andRespond(withStatus(expectedResponse)
-                .body(ObjectMapperTestUtil.convertObjectToJsonBytes(body))
+                .body(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonBytes(body))
                 .contentType(MediaType.APPLICATION_JSON));
     }
 
     private void mockDocmosisPDFService(HttpStatus expectedResponse, byte[] body) {
         mockRestServiceServer.expect(once(), requestTo(docmosisPdfServiceUri)).andExpect(method(HttpMethod.POST))
             .andRespond(withStatus(expectedResponse)
-                .body(ObjectMapperTestUtil.convertObjectToJsonBytes(body))
+                .body(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonBytes(body))
                 .contentType(MediaType.APPLICATION_JSON));
     }
 
@@ -1161,7 +1160,7 @@ public class DocumentGenerateAndStoreE2ETest {
         mockRestServiceServer.expect(once(), requestTo(emClientAPIUri))
             .andExpect(method(HttpMethod.POST))
             .andRespond(withStatus(expectedResponse)
-                .body(ObjectMapperTestUtil.convertObjectToJsonString(fileUploadResponse))
+                .body(uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ObjectMapperTestUtil.convertObjectToJsonString(fileUploadResponse))
                 .contentType(MediaType.APPLICATION_JSON));
     }
 

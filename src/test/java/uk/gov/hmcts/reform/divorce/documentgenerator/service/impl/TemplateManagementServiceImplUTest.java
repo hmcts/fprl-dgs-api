@@ -1,9 +1,9 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.service.impl;
+package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
-import uk.gov.hmcts.reform.divorce.documentgenerator.exception.ErrorLoadingTemplateException;
-import uk.gov.hmcts.reform.divorce.documentgenerator.service.TemplateManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.exception.ErrorLoadingTemplateException;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
 
 import java.io.IOException;
 import java.io.InputStream;

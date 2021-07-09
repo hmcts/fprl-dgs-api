@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.util;
+package uk.gov.hmcts.reform.fprl.documentgenerator.util;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -6,7 +6,7 @@ import org.junit.runner.RunWith;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
-import uk.gov.hmcts.reform.divorce.documentgenerator.exception.ErrorLoadingTemplateException;
+import uk.gov.hmcts.reform.fprl.documentgenerator.exception.ErrorLoadingTemplateException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Modifier;

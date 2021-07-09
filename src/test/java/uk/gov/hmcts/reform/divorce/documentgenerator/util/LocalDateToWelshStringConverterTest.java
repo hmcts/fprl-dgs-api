@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.util;
+package uk.gov.hmcts.reform.fprl.documentgenerator.util;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
@@ -9,16 +9,16 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import uk.gov.hmcts.reform.divorce.documentgenerator.config.LanguagePreference;
-import uk.gov.hmcts.reform.divorce.documentgenerator.config.TemplateConfig;
+import uk.gov.hmcts.reform.fprl.documentgenerator.config.LanguagePreference;
+import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplateConfig;
 
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.config.LanguagePreference.WELSH;
-import static uk.gov.hmcts.reform.divorce.documentgenerator.config.TemplateConfig.MONTHS;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.config.LanguagePreference.WELSH;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplateConfig.MONTHS;
 
 
 @RunWith(MockitoJUnitRunner.class)

@@ -23,7 +23,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Service
 @Slf4j
-public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
+public class DocmosisPdfGenerationService implements PDFGenerationService {
 
     @Autowired
     private RestTemplate restTemplate;
@@ -74,5 +74,4 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
             .devMode(docmosisDevMode)
             .data(templateDataMapper.map(placeholders)).build();
     }
-
 }

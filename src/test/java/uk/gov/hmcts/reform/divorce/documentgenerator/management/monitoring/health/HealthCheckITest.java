@@ -1,4 +1,4 @@
-package uk.gov.hmcts.reform.divorce.documentgenerator.management.monitoring.health;
+package uk.gov.hmcts.reform.fprl.documentgenerator.management.monitoring.health;
 
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.jayway.jsonpath.JsonPath;
@@ -33,7 +33,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
-import uk.gov.hmcts.reform.divorce.documentgenerator.DocumentGeneratorApplication;
+import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
@@ -68,9 +68,6 @@ public class HealthCheckITest {
 
     @Value("${service.evidence-management-client-api.health.uri}")
     private String evidenceManagementClientHealthUrl;
-
-    @Value("${service.pdf-service.health.uri}")
-    private String pdfServiceHealthUrl;
 
     @Value("${service.service-auth-provider.health.uri}")
     private String serviceAuthHealthUrl;
@@ -112,7 +109,6 @@ public class HealthCheckITest {
     @Test
     public void givenAllDependenciesAreUp_whenCheckHealth_thenReturnStatusUp() throws Exception {
         mockEndpointAndResponse(evidenceManagementClientHealthUrl, true);
-        mockEndpointAndResponse(pdfServiceHealthUrl, true);
         mockEndpointAndResponse(serviceAuthHealthUrl, true);
         mockServiceAuthFeignHealthCheck();
 
@@ -123,8 +119,6 @@ public class HealthCheckITest {
         assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
             equalTo("UP"));
