@@ -19,7 +19,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.AOS_INVITATION_NAME_FOR_PDF_FILE;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DUMMY_DOCUMENT;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DUMMY_DOCUMENT_TEMPLATE_ID;
@@ -80,7 +79,8 @@ public class TemplatesConfigurationTest {
 
     @Test(expected = Exception.class)
     public void shouldThrowAnExceptionWhenTemplateNameIsDuplicated() {
-        uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration templatesConfiguration = new uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration();
+        uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration templatesConfiguration;
+        templatesConfiguration = new TemplatesConfiguration();
         templatesConfiguration.setConfigurationList(asList(
             new uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplateConfiguration("thisName", null, null),
             new uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplateConfiguration("thisName", null, null)

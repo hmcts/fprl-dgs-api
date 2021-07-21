@@ -1,3 +1,5 @@
+import org.springframework.boot.gradle.tasks.run.BootRun
+
 buildscript {
   ext {
     springBootVersion = '2.4.5'
@@ -82,7 +84,6 @@ repositories {
   mavenLocal()
   jcenter()
 
-  maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
   maven { url "http://repo.maven.apache.org/maven2" }
   maven { url 'https://repo.spring.io/libs-milestone' }
 }
@@ -165,7 +166,7 @@ def versions = [
   tomcatEmbedWebsocket: '9.0.43',
   tomcatEmbedEl: '9.0.43',
   unirest: '1.4.9',
-  wiremockVersion: '2.29.0'
+  wiremockVersion: '2.27.2'
 ]
 dependencies {
   //integration test

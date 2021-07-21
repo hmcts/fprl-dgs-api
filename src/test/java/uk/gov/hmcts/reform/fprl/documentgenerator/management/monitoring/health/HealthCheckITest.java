@@ -40,7 +40,6 @@ import static com.github.tomakehurst.wiremock.client.WireMock.get;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
-import static org.springframework.http.MediaType.APPLICATION_JSON_UTF8_VALUE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
@@ -68,6 +67,9 @@ public class HealthCheckITest {
 
     @Value("${service.evidence-management-client-api.health.uri}")
     private String evidenceManagementClientHealthUrl;
+
+    @Value("${service.pdf-service.health.uri}")
+    private String pdfServiceHealthUrl;
 
     @Value("${service.service-auth-provider.health.uri}")
     private String serviceAuthHealthUrl;

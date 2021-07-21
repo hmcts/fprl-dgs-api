@@ -256,4 +256,8 @@ public class TemplateConstants {
     public static final String SEPARATION_TIME_LIVED_TOGETHER_DETAILS_DN_CY = "SeparationTimeLivedTogetherDetailsDNCY";
     public static final String SEPARATION_TIME_LIVED_TOGETHER_DETAILS_DN_TRANS = "SeparationTimeLivedTogetherDetailsDNTrans";
     public static final String SEPARATION_TIME_LIVED_TOGETHER_DETAILS_DN_TRANS_LANG = "SeparationTimeLivedTogetherDetailsDNTransLang";
+
+    public static final String DN_REFUSAL_ORDER_CLARIFICATION_TEMPLATE_ID = "FL-DIV-DEC-ENG-00088.docx";
+    public static final String DN_REFUSAL_ORDER_REJECTION_TEMPLATE_ID = "FL-DIV-DEC-ENG-00098.docx";
+    public static final String AOS_INVITATION_NAME_FOR_PDF_FILE = "AOSInvitation.pdf";
 }

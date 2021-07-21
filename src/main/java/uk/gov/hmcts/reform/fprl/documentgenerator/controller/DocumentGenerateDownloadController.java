@@ -42,10 +42,10 @@ public class DocumentGenerateDownloadController {
             GenerateDocumentRequest templateData) {
         byte[] pdf = documentManagementService.generateDocument(templateData.getTemplate(), templateData.getValues());
 
-    return ResponseEntity
-        .ok()
-        .contentLength(pdf.length)
-        .contentType(MediaType.APPLICATION_OCTET_STREAM)
-        .body(pdf);
-}
+        return ResponseEntity
+            .ok()
+            .contentLength(pdf.length)
+            .contentType(MediaType.APPLICATION_OCTET_STREAM)
+            .body(pdf);
+    }
 }
