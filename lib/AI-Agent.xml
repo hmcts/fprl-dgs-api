@@ -5,18 +5,18 @@
         <BuiltIn enabled="true">
             <HTTP enabled="true"/>
         </BuiltIn>
-        <Class name="uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.DocumentManagementServiceImpl">
+        <Class name="DocumentManagementServiceImpl">
             <Method name="generateAndStoreDocument" reportCaughtExceptions="true" reportExecutionTime="true"/>
             <Method name="storeDocument" reportCaughtExceptions="true" reportExecutionTime="true"/>
             <Method name="generateDocument" reportCaughtExceptions="true" reportExecutionTime="true"/>
         </Class>
-        <Class name="uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.EvidenceManagementServiceImpl">
+        <Class name="EvidenceManagementServiceImpl">
             <Method name="storeDocumentAndGetInfo" reportCaughtExceptions="true" reportExecutionTime="true"/>
         </Class>
-        <Class name="uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.PDFGenerationServiceImpl">
+        <Class name="PDFGenerationServiceImpl">
             <Method name="generateFromHtml" reportCaughtExceptions="true" reportExecutionTime="true"/>
         </Class>
-        <Class name="uk.gov.hmcts.reform.divorce.documentgenerator.service.impl.TemplateManagementServiceImpl">
+        <Class name="TemplateManagementServiceImpl">
             <Method name="getTemplateByName" reportCaughtExceptions="true" reportExecutionTime="true"/>
         </Class>
     </Instrumentation>
