@@ -7,22 +7,17 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
 
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.PDF_GENERATOR_TYPE;
 
 @RunWith(MockitoJUnitRunner.class)
 public class PDFGenerationFactoryTest {
 
     @Mock
     private TemplatesConfiguration templatesConfiguration;
-
-    @Mock
-    private PDFGenerationServiceImpl pdfGenerationService;
 
     @Mock
     private DocmosisPDFGenerationServiceImpl docmosisPDFGenerationService;
@@ -32,10 +27,8 @@ public class PDFGenerationFactoryTest {
 
     @Test
     public void shouldReturnTheRightGeneratorServiceByTemplateName() {
-        when(templatesConfiguration.getGeneratorServiceNameByTemplateName("templateUsingPdfGenerator")).thenReturn(PDF_GENERATOR_TYPE);
         when(templatesConfiguration.getGeneratorServiceNameByTemplateName("templateUsingDocmosisGenerator")).thenReturn(DOCMOSIS_TYPE);
 
-        assertThat(classUnderTest.getGeneratorService("templateUsingPdfGenerator"), is(pdfGenerationService));
         assertThat(classUnderTest.getGeneratorService("templateUsingDocmosisGenerator"), is(docmosisPDFGenerationService));
     }
 

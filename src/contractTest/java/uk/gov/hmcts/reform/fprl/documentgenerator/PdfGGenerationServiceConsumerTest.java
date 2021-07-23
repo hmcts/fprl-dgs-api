@@ -24,7 +24,7 @@ import org.springframework.util.ResourceUtils;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.PDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -47,7 +47,7 @@ public class PdfGGenerationServiceConsumerTest {
     private static final String SERVICE_AUTHORIZATION_HEADER = "ServiceAuthorization";
 
     @Autowired
-    PDFGenerationServiceImpl pdfGenerationService;
+    DocmosisPDFGenerationServiceImpl docmosisPDFGenerationService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -99,7 +99,7 @@ public class PdfGGenerationServiceConsumerTest {
         when(templateManagementService.getTemplateByName("someTemplateName")).thenReturn(template.getBytes());
         when(serviceTokenGenerator.generate()).thenReturn(someServiceAuthToken);
 
-        byte[] response = pdfGenerationService.generate("someTemplateName", placeholders);
+        byte[] response = docmosisPDFGenerationService.generate("someTemplateName", placeholders);
 
     }
 

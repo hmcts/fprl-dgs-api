@@ -67,7 +67,7 @@ bootJar {
         attributes 'Implementation-Title': project.name,
             'Implementation-Version': project.version
     }
-    archiveName 'div-document-generator.jar'
+    archiveName 'fprl-dgs-api.jar'
 }
 
 mainClassName = 'uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication'
@@ -84,7 +84,6 @@ repositories {
     mavenLocal()
     jcenter()
 
-    maven { url "https://dl.bintray.com/hmcts/hmcts-maven" }
     maven { url "http://repo.maven.apache.org/maven2" }
     maven { url 'https://repo.spring.io/libs-milestone' }
 }

@@ -31,7 +31,7 @@ public class SwaggerConfiguration implements WebMvcConfigurer {
 
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
-                .title("Divorce Document Generation API")
+                .title("Family Private Law Document Generation API")
                 .description("Given a template name and the placeholder text, this will generate a PDF file, "
                         + "store it in \n evidence management and will return the URI to retrieve the stored document")
                 .build();
