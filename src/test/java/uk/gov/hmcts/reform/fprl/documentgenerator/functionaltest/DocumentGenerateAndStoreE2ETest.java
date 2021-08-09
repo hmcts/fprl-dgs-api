@@ -2,8 +2,8 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,13 +26,10 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
-import uk.gov.hmcts.reform.fprl.documentgenerator.domain.CcdCollectionMember;
-import uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocumentManagementServiceImpl;
 
 import java.text.SimpleDateFormat;
@@ -67,28 +64,10 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String API_URL = "/version/1/generatePDF";
     private static final String CURRENT_DATE_KEY = "current_date";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-    private static final String A_TEMPLATE = "divorceminipetition";
-    private static final String COE_TEMPLATE = "FL-DIV-GNO-ENG-00020.docx";
-    private static final String DECREE_NISI_TEMPLATE = "FL-DIV-GNO-ENG-00021.docx";
-    private static final String COSTS_ORDER_TEMPLATE = "FL-DIV-DEC-ENG-00060.docx";
-    private static final String COSTS_ORDER_JUDGE_TEMPLATE = "FL-DIV-DEC-ENG-00711.docx";
-    private static final String COSTS_ORDER_JUDGE_WELSH_TEMPLATE = "FL-DIV-DEC-WEL-00712.docx";
-    private static final String DECREE_ABSOLUTE_TEMPLATE = "FL-DIV-GOR-ENG-00062.docx";
-    private static final String CASE_LIST_FOR_PRONOUNCEMENT_TEMPLATE_ID = "FL-DIV-GNO-ENG-00059.docx";
-    private static final String AOS_OFFLINE_INVITATION_LETTER_RESPONDENT_TEMPLATE_ID = "FL-DIV-LET-ENG-00075.doc";
-    private static final String AOS_OFFLINE_INVITATION_LETTER_CO_RESPONDENT_TEMPLATE_ID = "FL-DIV-LET-ENG-00076.doc";
-    private static final String AOS_OFFLINE_2_YEAR_SEPARATION_FORM_TEMPLATE_ID = "FL-DIV-APP-ENG-00080.docx";
-    private static final String AOS_OFFLINE_5_YEAR_SEPARATION_FORM_TEMPLATE_ID = "FL-DIV-APP-ENG-00081.docx";
-    private static final String AOS_OFFLINE_BEHAVIOUR_DESERTION_TEMPLATE_ID = "FL-DIV-APP-ENG-00082.docx";
-    private static final String AOS_OFFLINE_ADULTERY_FORM_RESPONDENT_TEMPLATE_ID = "FL-DIV-APP-ENG-00083.docx";
-    private static final String AOS_OFFLINE_ADULTERY_FORM_CO_RESPONDENT_TEMPLATE_ID = "FL-DIV-APP-ENG-00084.docx";
+    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
 
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
-    private static final String CLAIM_COSTS_JSON_KEY = "D8DivorceCostsClaim";
-    private static final String CLAIM_COSTS_FROM_JSON_KEY = "D8DivorceClaimFrom";
-    private static final String COURT_HEARING_JSON_KEY = "DateAndTimeOfHearing";
-    private static final String DN_APPROVAL_DATE_KEY = "DNApprovalDate";
 
     private static final String FILE_URL = "fileURL";
     private static final String MIME_TYPE = "mimeType";
@@ -96,13 +75,8 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String CREATED_BY = "createdBy";
     private static final String IS_DRAFT = "isDraft";
 
-    private static final String FEATURE_TOGGLE_RESP_SOLCIITOR = "featureToggleRespSolicitor";
-
     @Autowired
     private MockMvc webClient;
-
-    @Value("${service.pdf-service.uri}")
-    private String pdfServiceUri;
 
     @Value("${docmosis.service.pdf-service.uri}")
     private String docmosisPdfServiceUri;
@@ -112,12 +86,6 @@ public class DocumentGenerateAndStoreE2ETest {
 
     @MockBean
     private AuthTokenGenerator serviceTokenGenerator;
-
-    @Autowired
-    private DocmosisPDFGenerationServiceImpl docmosisPdfGenerationService;
-
-    @Autowired
-    private TemplateManagementService templateManagementService;
 
     @Autowired
     private RestTemplate restTemplate;
@@ -175,10 +143,15 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
+    @Ignore
     public void givenCouldNotConnectToAuthService_whenGenerateAndStoreDocument_thenReturnHttp503() throws Exception {
-        final Map<String, Object> values = Collections.emptyMap();
+        Map<String, Object> caseData = new HashMap<>();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(A_TEMPLATE, values);
+        Map<String, Object> requestData = Collections.singletonMap(
+            CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData)
+        );
+
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
@@ -190,10 +163,15 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
+    @Ignore
     public void givenAuthServiceReturnAuthenticationError_whenGenerateAndStoreDocument_thenReturnHttp401() throws Exception {
-        final Map<String, Object> values = Collections.emptyMap();
+        Map<String, Object> caseData = new HashMap<>();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(A_TEMPLATE, values);
+        Map<String, Object> requestData = Collections.singletonMap(
+            CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData)
+        );
+
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
@@ -205,14 +183,17 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
+    @Ignore
     public void givenObjectMapperThrowsException_whenGenerateAndStoreDocument_thenReturnHttp500() throws Exception {
         final ObjectMapper objectMapper = mock(ObjectMapper.class);
-
-        ReflectionTestUtils.setField(documentManagementService, "featureToggleRespSolicitor", "true");
 
         final Map<String, Object> values = new HashMap<>();
         values.put("someKey", "someValue");
         values.put(IS_DRAFT, false);
+
+        Map<String, Object> requestData = Collections.singletonMap(
+            CASE_DETAILS, Collections.singletonMap(CASE_DATA, values)
+        );
         final String securityToken = "securityToken";
         final Instant instant = Instant.now();
         mockAndSetClock(instant);
@@ -221,13 +202,13 @@ public class DocumentGenerateAndStoreE2ETest {
         valuesWithDate.put(CURRENT_DATE_KEY, new SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
             .format(Date.from(instant)));
 
-        valuesWithDate.put(FEATURE_TOGGLE_RESP_SOLCIITOR, true);
+        Map<String, Object> requestDataWithDate = Collections.singletonMap(
+            CASE_DETAILS, Collections.singletonMap(CASE_DATA, valuesWithDate)
+        );
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(A_TEMPLATE, values);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
-        final GenerateDocumentRequest requestToPDFService =
-            new GenerateDocumentRequest(new String(templateManagementService.getTemplateByName(A_TEMPLATE)),
-                valuesWithDate);
+        final GenerateDocumentRequest requestToPDFService = new GenerateDocumentRequest(TEST_EXAMPLE, requestDataWithDate);
 
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
         when(objectMapper.writeValueAsString(requestToPDFService)).thenThrow(mock(JsonProcessingException.class));
@@ -242,441 +223,9 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlement_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, Collections.EMPTY_MAP));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlementWithDnApprovalDate_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final Map<String, Object> caseData = Collections.singletonMap(
-            DN_APPROVAL_DATE_KEY, "2019-10-10");
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlementWithCourtHearing_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final CcdCollectionMember<Map<String, Object>> courtHearingDate = new CcdCollectionMember<>();
-        courtHearingDate.setValue(Collections.emptyMap());
-        final Map<String, Object> caseData = Collections.singletonMap(
-            COURT_HEARING_JSON_KEY, Collections.singletonList(courtHearingDate));
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlementWithClaimFromBoth_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"respondent", "correspondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlementWithClaimFromRespondent_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"respondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCertificateOfEntitlementWithClaimFromCoRespondent_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"correspondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCostsOrder_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"correspondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COSTS_ORDER_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCostsOrderJudge_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"correspondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COSTS_ORDER_JUDGE_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDivorceCostsOrderJudgeWelsh_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final String[] claimFrom = new String[] {"correspondent"};
-        final Map<String, Object> caseData = new HashMap<>();
-        caseData.put(CLAIM_COSTS_JSON_KEY, "YES");
-        caseData.put(CLAIM_COSTS_FROM_JSON_KEY, claimFrom);
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COSTS_ORDER_JUDGE_WELSH_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDecreeNisiPronouncement_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final Map<String, Object> caseData = ImmutableMap.of(
-            TemplateConstants.DECREE_NISI_GRANTED_DATE_KEY, "2019-10-10",
-            TemplateConstants.DECREE_ABSOLUTE_ELIGIBLE_FROM_DATE_KEY, "2019-11-23"
-        );
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(DECREE_NISI_TEMPLATE, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDecreeAbsolutePronouncement_whenGenerateAndStoreDocument_thenReturn()
+    public void givenAllGoesWellForTestExample_whenGenerateAndStoreDocument_thenReturn()
         throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(DECREE_ABSOLUTE_TEMPLATE);
-    }
-
-    @Test
-    public void givenAllGoesWellForPrintForPronouncement_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(CASE_LIST_FOR_PRONOUNCEMENT_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenInvalidDnApprovalDateForGenerateCoE_whenGenerateAndStoreDocument_thenThrowException() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-
-        final Map<String, Object> caseData = Collections.singletonMap(
-            DN_APPROVAL_DATE_KEY, "invalidDateFormat");
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(COE_TEMPLATE, values);
-
-        webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().is5xxServerError())
-            .andReturn();
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOfflineInvitationLetterRespondent_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(
-            AOS_OFFLINE_INVITATION_LETTER_RESPONDENT_TEMPLATE_ID
-        );
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOfflineInvitationLetterCoRespondent_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(AOS_OFFLINE_INVITATION_LETTER_CO_RESPONDENT_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOffline2YearSeparationForm_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(AOS_OFFLINE_2_YEAR_SEPARATION_FORM_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOffline5YearSeparationForm_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(AOS_OFFLINE_5_YEAR_SEPARATION_FORM_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOfflineBehaviourDesertionForm_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(AOS_OFFLINE_BEHAVIOUR_DESERTION_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOfflineAdulteryFormRespondent_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(AOS_OFFLINE_ADULTERY_FORM_RESPONDENT_TEMPLATE_ID);
-    }
-
-    @Test
-    public void givenAllGoesWellForAosOfflineAdulteryFormCoRespondent_whenGenerateAndStoreDocument_thenReturn()
-        throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(
-            AOS_OFFLINE_ADULTERY_FORM_CO_RESPONDENT_TEMPLATE_ID);
+        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(TEST_EXAMPLE);
     }
 
     private void assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(String templateId) throws Exception {
@@ -704,74 +253,6 @@ public class DocumentGenerateAndStoreE2ETest {
         //Then
         final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
         assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo), result.getResponse().getContentAsString());
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDecreeNisiClarificationOrder_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final Map<String, Object> caseData = Collections.emptyMap();
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(TemplateConstants.DN_REFUSAL_ORDER_CLARIFICATION_TEMPLATE_ID, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
-        mockRestServiceServer.verify();
-    }
-
-    @Test
-    public void givenAllGoesWellForDecreeNisiRefusalOrder_whenGenerateAndStoreDocument_thenReturn() throws Exception {
-        final Map<String, Object> values = new HashMap<>();
-        final String securityToken = "securityToken";
-
-        final Map<String, Object> caseData = Collections.emptyMap();
-
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-
-        final GenerateDocumentRequest generateDocumentRequest =
-            new GenerateDocumentRequest(TemplateConstants.DN_REFUSAL_ORDER_REJECTION_TEMPLATE_ID, values);
-
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-
-        final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
-
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-
-        MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isOk())
-            .andReturn();
-
-        assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo),
-            result.getResponse().getContentAsString());
-
         mockRestServiceServer.verify();
     }
 
