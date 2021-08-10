@@ -55,7 +55,7 @@ public class EvidenceManagementServiceImplUTest {
     private static final String EVIDENCE_MANAGEMENT_ENDPOINT = "evidence_management_endpoint";
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String FILE_PARAMETER = "file";
-    private static final String DEFAULT_NAME_FOR_PDF_FILE = "DivorceDocument.pdf";
+    private static final String DEFAULT_NAME_FOR_PDF_FILE = "FPRLDocument.pdf";
 
     @Mock
     private RestTemplate restTemplate;

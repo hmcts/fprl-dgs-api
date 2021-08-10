@@ -16,6 +16,14 @@ service:
             context-path: /health
             uri: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://localhost:4502}${service.service-auth-provider.health.context-path}
 
+docmosis:
+    service:
+        pdf-service:
+            accessKey: ${DOCMOSIS_SERVICE_ACCESS_KEY:23432}
+            renderEndpoint: "/rs/render"
+            uri: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}${docmosis.service.pdf-service.renderEndpoint}
+            devMode: ${DOCMOSIS_SERVICE_DEV_MODE_FLAG:false}
+
 auth:
     provider:
         service:
@@ -147,14 +155,6 @@ logging:
 
 azure:
     app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-
-docmosis:
-    service:
-        pdf-service:
-            accessKey: ${DOCMOSIS_SERVICE_ACCESS_KEY:23432}
-            renderEndpoint: "/rs/render"
-            uri: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}${docmosis.service.pdf-service.renderEndpoint}
-            devMode: ${DOCMOSIS_SERVICE_DEV_MODE_FLAG:false}
 
 feature-toggle:
     toggle:

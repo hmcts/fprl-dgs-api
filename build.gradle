@@ -267,6 +267,7 @@ dependencies {
     compile group: 'org.apache.httpcomponents', name: 'httpclient', version: versions.httpComponents
 
     annotationProcessor("org.projectlombok:lombok:${versions.lombok}")
+    annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
     implementation group: 'org.projectlombok', name: 'lombok', version: versions.lombok
     implementation("org.springframework.boot:spring-boot-starter-validation")
     testCompile group: 'com.github.tomakehurst', name:'wiremock', version: versions.wiremockVersion

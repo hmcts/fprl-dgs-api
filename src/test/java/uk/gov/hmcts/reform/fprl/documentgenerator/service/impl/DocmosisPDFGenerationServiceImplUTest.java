@@ -51,8 +51,8 @@ public class DocmosisPDFGenerationServiceImplUTest {
 
     @Before
     public void before() {
-        Whitebox.setInternalState(classUnderTest, "pdfServiceEndpoint", PDF_SERVICE_ENDPOINT);
-        Whitebox.setInternalState(classUnderTest, "pdfServiceAccessKey", PDF_SERVICE_KEY);
+        Whitebox.setInternalState(classUnderTest, "docmosisPdfServiceEndpoint", PDF_SERVICE_ENDPOINT);
+        Whitebox.setInternalState(classUnderTest, "docmosisPdfServiceAccessKey", PDF_SERVICE_KEY);
         mockStatic(NullOrEmptyValidator.class, Objects.class);
     }
 

@@ -30,7 +30,7 @@ import java.util.Optional;
 public class EvidenceManagementServiceImpl implements EvidenceManagementService {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String FILE_PARAMETER = "file";
-    private static final String DEFAULT_NAME_FOR_PDF_FILE = "DivorceDocument.pdf";
+    private static final String DEFAULT_NAME_FOR_PDF_FILE = "FPRLDocument.pdf";
 
     @Value("${service.evidence-management-client-api.uri}")
     private String evidenceManagementEndpoint;

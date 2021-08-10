@@ -2,7 +2,6 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
@@ -19,7 +18,6 @@ import java.util.Locale;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.FEATURE_TOGGLE_RESP_SOLCIITOR;
 
 @Service
 @Slf4j
@@ -37,9 +35,6 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     private final PDFGenerationFactory pdfGenerationFactory;
     private final EvidenceManagementService evidenceManagementService;
     private final TemplatesConfiguration templatesConfiguration;
-
-    @Value("${feature-toggle.toggle.feature_resp_solicitor_details}")
-    private String featureToggleRespSolicitor;
 
     @Override
     public GeneratedDocumentInfo generateAndStoreDocument(String templateName, Map<String, Object> placeholders,
@@ -77,7 +72,7 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
                 .format(Date.from(clock.instant())
                 )
         );
-        placeholders.put(FEATURE_TOGGLE_RESP_SOLCIITOR, Boolean.valueOf(featureToggleRespSolicitor));
+
         byte[] generatedDocument = generateDocument(templateName, placeholders);
         log.info("Document generated for case Id {}", caseId);
         return storeDocument(generatedDocument, authorizationToken, fileName);

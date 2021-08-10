@@ -32,10 +32,10 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
     private TemplateDataMapper templateDataMapper;
 
     @Value("${docmosis.service.pdf-service.uri}")
-    private String pdfServiceEndpoint;
+    private String docmosisPdfServiceEndpoint;
 
     @Value("${docmosis.service.pdf-service.accessKey}")
-    private String pdfServiceAccessKey;
+    private String docmosisPdfServiceAccessKey;
 
     @Value("${docmosis.service.pdf-service.devMode}")
     private String docmosisDevMode;
@@ -50,16 +50,16 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
 
         try {
             // Remove this log when tested
-            log.info("Making Docmosis Request From {}", pdfServiceEndpoint);
+            log.info("Making Docmosis Request From {}", docmosisPdfServiceEndpoint);
 
             HttpHeaders headers = new HttpHeaders();
             headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
 
             HttpEntity<PdfDocumentRequest> httpEntity = new HttpEntity<>(request(templateName, placeholders), headers);
 
-            // DALEC - PROBLEM - NESTED EXCEPTION
+            // RPET-241 - PROBLEM - NESTED EXCEPTION
             ResponseEntity<byte[]> response =
-                restTemplate.exchange(pdfServiceEndpoint, HttpMethod.POST, httpEntity, byte[].class);
+                restTemplate.exchange(docmosisPdfServiceEndpoint, HttpMethod.POST, httpEntity, byte[].class);
 
             return response.getBody();
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
 
     private PdfDocumentRequest request(String templateName, Map<String, Object> placeholders) {
         return PdfDocumentRequest.builder()
-            .accessKey(pdfServiceAccessKey)
+            .accessKey(docmosisPdfServiceAccessKey)
             .templateName(templateName)
             .outputName("result.pdf")
             .devMode(docmosisDevMode)
