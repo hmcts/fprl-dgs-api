@@ -88,8 +88,8 @@ document:
             -   templateName: FL-DIV-GNO-ENG-00059.docx
                 filename: CaseListForPronouncement.pdf
                 document-generator: docmosis
-            -   templateName: FL-DIV-GOR-ENG-00062.docx
-                filename: DecreeAbsolute.pdf
+            -   templateName: FPRL-TEST-DOCUMENT.docx
+                filename: TestTemplate.pdf
                 document-generator: docmosis
             -   templateName: FL-DIV-GNO-ENG-00022.docx
                 filename: DecreeNisiAnswers.pdf

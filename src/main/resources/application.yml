@@ -63,8 +63,8 @@ pdf:
 document:
     templates:
         configurationList:
-            -   templateName: FL-DIV-GOR-ENG-00062.docx
-                filename: DecreeAbsolute.pdf
+            -   templateName: FPRL-TEST-DOCUMENT.docx
+                filename: TestTemplate.pdf
                 document-generator: docmosis
     pdf:
         familyCourtImgKey: "familycourt"

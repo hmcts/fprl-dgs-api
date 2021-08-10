@@ -19,10 +19,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DECREE_ABSOLUTE_NAME_FOR_PDF_FILE;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DECREE_ABSOLUTE_TEMPLATE_ID;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.PDF_GENERATOR_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.TEST_TEMPLATE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.TEST_TEMPLATE_NAME_FOR_PDF;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -37,8 +37,8 @@ public class TemplatesConfigurationTest {
     @BeforeClass
     public static void setUp() {
         expectedTemplateConfigs = Sets.newHashSet(
-            new ImmutableTriple<>(DECREE_ABSOLUTE_TEMPLATE_ID,
-                DECREE_ABSOLUTE_NAME_FOR_PDF_FILE, DOCMOSIS_TYPE)
+            new ImmutableTriple<>(TEST_TEMPLATE,
+                TEST_TEMPLATE_NAME_FOR_PDF, DOCMOSIS_TYPE)
         );
     }
 

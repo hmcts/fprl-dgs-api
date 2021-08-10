@@ -10,10 +10,10 @@ public class TemplateConstants {
     public static final String PDF_GENERATOR_TYPE = "pdfgenerator";
 
     // Template Ids
-    public static final String DECREE_ABSOLUTE_TEMPLATE_ID = "FL-DIV-GOR-ENG-00062.docx";
+    public static final String TEST_TEMPLATE = "FPRL-TEST-DOCUMENT.docx";
 
     // Template Names
-    public static final String DECREE_ABSOLUTE_NAME_FOR_PDF_FILE = "DecreeAbsolute.pdf";
+    public static final String TEST_TEMPLATE_NAME_FOR_PDF = "TestTemplate.pdf";
 
     // Template Data Mapper Constants
     public static final String CASE_DATA = "case_data";

@@ -64,7 +64,7 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String API_URL = "/version/1/generatePDF";
     private static final String CURRENT_DATE_KEY = "current_date";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
+    private static final String TEST_EXAMPLE = "FPRL-TEST-DOCUMENT.docx";
 
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
