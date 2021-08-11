@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 public class TemplateConstants {
     // Generators
     public static final String DOCMOSIS_TYPE = "docmosis";
-    public static final String PDF_GENERATOR_TYPE = "pdfgenerator";
 
     // Template Ids
     public static final String TEST_TEMPLATE = "FPRL-TEST-DOCUMENT.docx";

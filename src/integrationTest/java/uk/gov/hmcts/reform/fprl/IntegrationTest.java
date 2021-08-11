@@ -26,13 +26,13 @@ public abstract class IntegrationTest {
     private static final String GENERIC_PASSWORD = "genericPassword123";
 
     @Value("${document.generator.base.uri}")
-    protected String divDocumentGeneratorBaseURI;
+    protected String fprlDocumentGeneratorBaseURI;
 
-    @Value("${divorce.document.generator.uri}")
-    protected String divDocumentGeneratorURI;
+    @Value("${fprl.document.generator.uri}")
+    protected String fprlDocumentGeneratorURI;
 
-    @Value("${divorce.document.generateDraft.uri}")
-    protected String divDocumentGenerateDraftURI;
+    @Value("${fprl.document.generateDraft.uri}")
+    protected String fprlDocumentGenerateDraftURI;
 
     @Value("${document.management.store.baseUrl}")
     protected String documentManagementURL;
@@ -52,13 +52,6 @@ public abstract class IntegrationTest {
     private static String userToken = null;
     private String username;
 
-    protected static boolean featureToggleRespSolicitor;
-
-    @Value("${feature-toggle.toggle.feature_resp_solicitor_details}")
-    public void setFeatureToggleRespSolicitor(String toggle) {
-        IntegrationTest.featureToggleRespSolicitor = Boolean.valueOf(toggle);
-    }
-
     public IntegrationTest() {
         this.springMethodIntegration = new SpringIntegrationMethodRule();
     }
@@ -76,16 +69,16 @@ public abstract class IntegrationTest {
             uri, authTokenGenerator.generate(), username);
     }
 
-    public Response callDivDocumentGenerator(String requestBody) {
+    public Response callFprlDocumentGenerator(String requestBody) {
         return DocumentGeneratorUtil.generatePDF(requestBody,
-                                                divDocumentGeneratorURI,
+            fprlDocumentGeneratorURI,
                                                 getUserToken());
     }
 
 
     public Response callGenerateDraftPdf(String requestBody) {
         return DocumentGeneratorUtil.generatePDF(requestBody,
-                                                divDocumentGenerateDraftURI,
+            fprlDocumentGenerateDraftURI,
                                                 getUserToken());
     }
 

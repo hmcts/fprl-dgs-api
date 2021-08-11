@@ -12,7 +12,7 @@ public class DocumentGeneratorSmokeTest extends IntegrationTest {
 
     @Test
     public void shouldHaveHealthyService() {
-        when().get(divDocumentGeneratorBaseURI + "/health")
+        when().get(fprlDocumentGeneratorBaseURI + "/health")
             .then().statusCode(200).body("status", is("UP"));
     }
 

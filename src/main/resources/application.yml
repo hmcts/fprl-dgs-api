@@ -1,5 +1,5 @@
 server:
-    port: ${DIV_DOCUMENT_GENERATOR_PORT:4007}
+    port: ${FPRL_DOCUMENT_GENERATOR_PORT:4007}
 
 service:
     pdf-service:
@@ -74,31 +74,6 @@ document:
         displayTemplateKey: "displayTemplateOnly"
         displayTemplateVal: "1"
 
-template:
-  relation:
-    english:
-      "male": "husband"
-      "female": "wife"
-    welsh:
-      "male": "gŵr"
-      "female": "gwraig"
-      "husband": "gŵr"
-      "wife": "gwraig"
-  months:
-    welsh:
-      1: "Ionawr"
-      2: "Chwefror"
-      3: "Mawrth"
-      4: "Ebrill"
-      5: "Mai"
-      6: "Mehefin"
-      7: "Gorffennaf"
-      8: "Awst"
-      9: "Medi"
-      10: "Hydref"
-      11: "Tachwedd"
-      12: "Rhagfyr"
-
 service-auth-provider:
     service:
         stub:
@@ -155,7 +130,3 @@ logging:
 
 azure:
     app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
-
-feature-toggle:
-    toggle:
-        feature_resp_solicitor_details: ${FEATURE_RESP_SOLICITOR_DETAILS:true}

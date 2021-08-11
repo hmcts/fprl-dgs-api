@@ -49,9 +49,7 @@ public class GenerateDraftPDFTest extends IntegrationTest {
     @TestData
     public static Collection<Object[]> testData() {
         return Arrays.asList(new Object[][]{
-            {"mini-petition-draft-resp-confidential-addr"},
-            {"mini-petition-draft"},
-            {"mini-petition-draft-no-place-of-marriage"}
+            {"DA-granted-letter"}
         });
     }
 

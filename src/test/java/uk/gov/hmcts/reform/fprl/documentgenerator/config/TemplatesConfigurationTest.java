@@ -20,7 +20,6 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThrows;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.DOCMOSIS_TYPE;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.PDF_GENERATOR_TYPE;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.TEST_TEMPLATE;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstants.TEST_TEMPLATE_NAME_FOR_PDF;
 
@@ -72,7 +71,7 @@ public class TemplatesConfigurationTest {
 
     @Test
     public void shouldReturnDefaultGeneratorForNonExistentTemplate() {
-        assertThat(classUnderTest.getGeneratorServiceNameByTemplateName("non-existent-template"), is(PDF_GENERATOR_TYPE));
+        assertThat(classUnderTest.getGeneratorServiceNameByTemplateName("non-existent-template"), is(DOCMOSIS_TYPE));
     }
 
     @Test(expected = Exception.class)

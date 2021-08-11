@@ -36,7 +36,7 @@ public class TemplatesConfiguration {
     public String getGeneratorServiceNameByTemplateName(String templateName) {
         return Optional.ofNullable(templateConfigurationMap.get(templateName))
             .map(TemplateConfiguration::getDocumentGenerator)
-            .orElse(TemplateConstants.PDF_GENERATOR_TYPE);
+            .orElse(TemplateConstants.DOCMOSIS_TYPE);
     }
 
 }

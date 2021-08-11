@@ -33,7 +33,7 @@ public class EMStoreIntegrationTest extends IntegrationTest {
 
     public void checkPDFGenerated(String filename) throws Exception {
         String requestBody = loadJson(filename);
-        Response response = callDivDocumentGenerator(requestBody);
+        Response response = callFprlDocumentGenerator(requestBody);
         Assert.assertEquals(OK.value(), response.getStatusCode());
         String documentUri = response.getBody().jsonPath().get(DOCUMENT_URL_KEY);
         String mimeType = response.getBody().jsonPath().get(MIME_TYPE_KEY);
@@ -92,7 +92,7 @@ public class EMStoreIntegrationTest extends IntegrationTest {
     @Test
     public void givenTemplateIsNotPresent_whenGeneratePDF_thenExpectHttpStatus400() throws Exception {
         String requestBody = loadJson(INVALID_TEMPLATE_NAME_JSON);
-        Response response = callDivDocumentGenerator(requestBody);
+        Response response = callFprlDocumentGenerator(requestBody);
         Assert.assertEquals(BAD_REQUEST.value(), response.getStatusCode());
     }
 
@@ -106,7 +106,7 @@ public class EMStoreIntegrationTest extends IntegrationTest {
     @Test
     public void givenRequiredTemplateDataNotPresent_whenGeneratePDF_thenExpectHttpStatus400() throws Exception {
         String requestBody = loadJson(INVALID_TEMPLATE_DATA_JSON);
-        Response response = callDivDocumentGenerator(requestBody);
+        Response response = callFprlDocumentGenerator(requestBody);
         Assert.assertEquals(BAD_REQUEST.value(), response.getStatusCode());
     }
 

@@ -85,7 +85,7 @@ public class PDFGenerationTest extends IntegrationTest {
     private Response generatePdfSuccessfully(String inputJson) throws Exception {
         String requestBody = ResourceLoader.loadJson(inputJson);
         log.info("Generating PDF {} based on request \n{}", inputJson, requestBody);
-        Response response = callDivDocumentGenerator(requestBody);
+        Response response = callFprlDocumentGenerator(requestBody);
         assertEquals(
             "Unexpected status code when generating PDF for " + inputJson,
             HttpStatus.OK.value(),

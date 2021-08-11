@@ -1,5 +1,5 @@
 server:
-    port: ${DIV_DOCUMENT_GENERATOR_PORT:4007}
+    port: ${FPRL_DOCUMENT_GENERATOR_PORT:4007}
 
 service:
     pdf-service:
@@ -107,7 +107,7 @@ documentation:
 
 spring:
     application:
-        name: "div-dgs"
+        name: "fprl-dgs"
     resources:
         static-locations:
 
