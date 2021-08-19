@@ -20,9 +20,9 @@ def component = "dgs"
 
 def secrets = [
     'fprl-${env}': [
-        secret("fprl-doc-s2s-auth-secret", "IDAM_AUTH_SECRET"),
+        secret("microservicekey-fprl-dgs-api", "IDAM_AUTH_SECRET"),
         secret("idam-secret", "AUTH_IDAM_CLIENT_SECRET"),
-        secret("fprl-doc-s2s-auth-secret", "AUTH_PROVIDER_SERVICE_CLIENT_KEY"),
+        secret("microservicekey-fprl-dgs-api", "AUTH_PROVIDER_SERVICE_CLIENT_KEY"),
         secret("docmosis-api-key", "DOCMOSIS_SERVICE_ACCESS_KEY")
     ]
 ]

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.management.monitoring.health;
 
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
 import com.jayway.jsonpath.JsonPath;
 import com.netflix.loadbalancer.Server;
@@ -14,37 +15,29 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.cloud.contract.wiremock.WireMockSpring;
 import org.springframework.cloud.netflix.ribbon.StaticServerList;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.ClientHttpRequestFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.client.MockRestServiceServer;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
+import uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.ConnectionCloseExtension;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.get;
+import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.equalTo;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
-import static org.springframework.test.web.client.ExpectedCount.once;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -54,7 +47,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 @TestPropertySource(properties = {
         "management.endpoint.health.cache.time-to-live=0",
         "feign.hystrix.enabled=true",
-        "eureka.client.enabled=false"
+        "eureka.client.enabled=false",
     })
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HealthCheckITest {
@@ -65,28 +58,16 @@ public class HealthCheckITest {
     @LocalServerPort
     private int port;
 
-    @Value("${service.evidence-management-client-api.health.uri}")
-    private String evidenceManagementClientHealthUrl;
-
-    @Value("${service.pdf-service.health.uri}")
-    private String pdfServiceHealthUrl;
-
-    @Value("${service.service-auth-provider.health.uri}")
-    private String serviceAuthHealthUrl;
-
-    @Value("${service.service-auth-provider.health.context-path}")
-    private String serviceAuthHealthContextPath;
+    @ClassRule
+    public static WireMockClassRule serviceAuthServer = new WireMockClassRule(buildWireMockConfig(4502));
 
     @ClassRule
-    public static WireMockClassRule serviceAuthServer = new WireMockClassRule(4502);
+    public static WireMockClassRule docmosisService = new WireMockClassRule(buildWireMockConfig(5501));
 
-    @Autowired
-    @Qualifier("healthCheckRestTemplate")
-    private RestTemplate restTemplate;
+    @ClassRule
+    public static WireMockClassRule caseDocService = new WireMockClassRule(buildWireMockConfig(5170));
 
     private String healthUrl;
-    private MockRestServiceServer mockRestServiceServer;
-    private ClientHttpRequestFactory originalRequestFactory;
     private final HttpClient httpClient = HttpClients.createMinimal();
 
     private HttpResponse getHealth() throws Exception {
@@ -99,33 +80,38 @@ public class HealthCheckITest {
     @Before
     public void setUp() {
         healthUrl = "http://localhost:" + String.valueOf(port) + "/health";
-        originalRequestFactory = restTemplate.getRequestFactory();
-        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
     }
 
     @After
     public void tearDown() {
-        restTemplate.setRequestFactory(originalRequestFactory);
+        resetAllMockServices();
+    }
+
+    private static WireMockConfiguration buildWireMockConfig(int port) {
+        return WireMockSpring
+            .options()
+            .port(port)
+            .jettyStopTimeout(20L)
+            .extensions(new ConnectionCloseExtension());
     }
 
     @Test
     public void givenAllDependenciesAreUp_whenCheckHealth_thenReturnStatusUp() throws Exception {
-        mockEndpointAndResponse(evidenceManagementClientHealthUrl, true);
-        mockEndpointAndResponse(pdfServiceHealthUrl, true);
-        mockEndpointAndResponse(serviceAuthHealthUrl, true);
-        mockServiceAuthFeignHealthCheck();
+        stubEndpointAndResponse(serviceAuthServer, true);
+        stubEndpointAndResponse(docmosisService, true);
+        stubEndpointAndResponse(caseDocService, true);
 
         HttpResponse response = getHealth();
         String body = EntityUtils.toString(response.getEntity());
 
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(200));
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(HttpStatus.OK.value()));
         assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
+            equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.docmosisHealthCheck.status").toString(),
+            equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.caseDocumentManagement.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(),
             equalTo("UP"));
@@ -133,106 +119,103 @@ public class HealthCheckITest {
 
     @Test
     public void givenAllDependenciesAreDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
-        mockEndpointAndResponse(evidenceManagementClientHealthUrl, false);
-        mockEndpointAndResponse(pdfServiceHealthUrl, false);
-        mockEndpointAndResponse(serviceAuthHealthUrl, false);
+        stubEndpointAndResponse(serviceAuthServer, false);
+        stubEndpointAndResponse(docmosisService, false);
+        stubEndpointAndResponse(caseDocService, false);
 
         HttpResponse response = getHealth();
         String body = EntityUtils.toString(response.getEntity());
 
-        assertThat(response.getStatusLine().getStatusCode(),
-            equalTo(503));
-        assertThat(JsonPath.read(body, "$.status").toString(), equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE.value()));
+        assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
+            equalTo("DOWN"));
+        assertThat(JsonPath.read(body, "$.components.docmosisHealthCheck.status").toString(),
+            equalTo("DOWN"));
+        assertThat(JsonPath.read(body, "$.components.caseDocumentManagement.status").toString(),
             equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(),
             equalTo("UP"));
     }
 
     @Test
-    public void givenPDFServiceIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
-        mockEndpointAndResponse(evidenceManagementClientHealthUrl, true);
-        mockEndpointAndResponse(pdfServiceHealthUrl, false);
-        mockEndpointAndResponse(serviceAuthHealthUrl, true);
+    public void givenDocmosisServiceIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
+        stubEndpointAndResponse(serviceAuthServer, true);
+        stubEndpointAndResponse(docmosisService, false);
+        stubEndpointAndResponse(caseDocService, true);
 
         HttpResponse response = getHealth();
         String body = EntityUtils.toString(response.getEntity());
 
-        assertThat(response.getStatusLine().getStatusCode(),
-            equalTo(503));
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE.value()));
         assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
-            equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
+            equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.docmosisHealthCheck.status").toString(),
+            equalTo("DOWN"));
+        assertThat(JsonPath.read(body, "$.components.caseDocumentManagement.status").toString(),
             equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(),
             equalTo("UP"));
     }
 
     @Test
-    public void givenEvidenceManagementClientIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
-        mockEndpointAndResponse(evidenceManagementClientHealthUrl, false);
-        mockEndpointAndResponse(pdfServiceHealthUrl, true);
-        mockEndpointAndResponse(serviceAuthHealthUrl, true);
+    public void givenCaseDocumentsClientIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
+        stubEndpointAndResponse(serviceAuthServer, true);
+        stubEndpointAndResponse(docmosisService, true);
+        stubEndpointAndResponse(caseDocService, false);
 
         HttpResponse response = getHealth();
         String body = EntityUtils.toString(response.getEntity());
 
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE.value()));
         assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
             equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.docmosisHealthCheck.status").toString(),
+            equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.caseDocumentManagement.status").toString(),
+            equalTo("DOWN"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(),
             equalTo("UP"));
     }
 
     @Test
     public void givenAuthServiceIsDown_whenCheckHealth_thenReturnStatusDown() throws Exception {
-        mockEndpointAndResponse(evidenceManagementClientHealthUrl, true);
-        mockEndpointAndResponse(pdfServiceHealthUrl, true);
-        mockEndpointAndResponse(serviceAuthHealthUrl, false);
+        stubEndpointAndResponse(serviceAuthServer, false);
+        stubEndpointAndResponse(docmosisService, true);
+        stubEndpointAndResponse(caseDocService, true);
 
         HttpResponse response = getHealth();
         String body = EntityUtils.toString(response.getEntity());
 
-        assertThat(response.getStatusLine().getStatusCode(), equalTo(503));
+        assertThat(response.getStatusLine().getStatusCode(), equalTo(HttpStatus.SERVICE_UNAVAILABLE.value()));
         assertThat(JsonPath.read(body, "$.status").toString(),
             equalTo("DOWN"));
-        assertThat(JsonPath.read(body, "$.components.evidenceManagementClientHealthCheck.status").toString(),
-            equalTo("UP"));
-        assertThat(JsonPath.read(body, "$.components.PDFServiceHealthCheck.status").toString(),
-            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.serviceAuthProviderHealthCheck.status").toString(),
             equalTo("DOWN"));
+        assertThat(JsonPath.read(body, "$.components.docmosisHealthCheck.status").toString(),
+            equalTo("UP"));
+        assertThat(JsonPath.read(body, "$.components.caseDocumentManagement.status").toString(),
+            equalTo("UP"));
         assertThat(JsonPath.read(body, "$.components.diskSpace.status").toString(),
             equalTo("UP"));
     }
 
-    private void mockEndpointAndResponse(String requestUrl, boolean serviceUp) {
-        mockRestServiceServer.expect(once(), requestTo(requestUrl)).andExpect(method(HttpMethod.GET))
-                .andRespond(withStatus(serviceUp ? HttpStatus.OK : HttpStatus.SERVICE_UNAVAILABLE)
-                        .body(serviceUp ? HEALTH_UP_RESPONSE : HEALTH_DOWN_RESPONSE)
-                        .contentType(MediaType.APPLICATION_JSON));
+    private void stubEndpointAndResponse(WireMockClassRule mockServer, boolean serviceUp) {
+        mockServer.stubFor(get(urlEqualTo("/health"))
+            .willReturn(aResponse()
+                .withStatus(serviceUp ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(serviceUp ? HEALTH_UP_RESPONSE : HEALTH_DOWN_RESPONSE)));
     }
 
-    private void mockServiceAuthFeignHealthCheck() {
-        serviceAuthServer.stubFor(get(serviceAuthHealthContextPath)
-                .willReturn(aResponse()
-                        .withStatus(HttpStatus.OK.value())
-                        .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                        .withBody(HEALTH_UP_RESPONSE)));
+    protected final void resetAllMockServices() {
+        serviceAuthServer.resetAll();
+        docmosisService.resetAll();
     }
 
     @TestConfiguration

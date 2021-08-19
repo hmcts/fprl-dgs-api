@@ -47,7 +47,7 @@ public class DocumentGeneratorController {
         @RequestBody
         @Valid
             GenerateDocumentRequest templateData) {
-        //This service is internal to Divorce system. No need to do service authentication here
+        //This service is internal to FPRL system. No need to do service authentication here
         log.info("Document generation requested with templateName [{}], placeholders map of size[{}]",
                 templateData.getTemplate(), templateData.getValues().size());
         return documentManagementService.generateAndStoreDocument(templateData.getTemplate(), templateData.getValues(),

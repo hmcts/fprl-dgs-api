@@ -1,54 +1,44 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.Before;
-import org.junit.Ignore;
+import com.github.tomakehurst.wiremock.client.WireMock;
+import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.PropertySource;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.util.ReflectionTestUtils;
-import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.HttpClientErrorException;
-import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.ccd.document.am.model.Document;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
-import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocumentManagementServiceImpl;
 
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.Clock;
-import java.time.Instant;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
+import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.client.ExpectedCount.once;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.method;
-import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
-import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
+import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -57,48 +47,41 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @PropertySource(value = "classpath:application.yml")
 @TestPropertySource(properties = {"management.endpoint.health.cache.time-to-live=0",
-    "service-auth-provider.service.stub.enabled=false",
-    "evidence-management-api.service.stub.enabled=false"})
+    "service-auth-provider.service.stub.enabled=true"})
 @AutoConfigureMockMvc
 public class DocumentGenerateAndStoreE2ETest {
     private static final String API_URL = "/version/1/generatePDF";
-    private static final String CURRENT_DATE_KEY = "current_date";
-    private static final String DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSS";
-    private static final String TEST_EXAMPLE = "FPRL-TEST-DOCUMENT.docx";
+    private static final String CASE_DOCS_API_URL = "/cases/documents";
+    private static final String DOCMOSIS_API_URL = "/rs/render";
+
+    private static final String NOT_ALLOWED_SERVICE = "test_service_not_allowed";
+
+    private static final String TEST_DATE = "18/8/2021";
+    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
 
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
 
     private static final String FILE_URL = "fileURL";
     private static final String MIME_TYPE = "mimeType";
-    private static final String CREATED_ON = "createdOn";
-    private static final String CREATED_BY = "createdBy";
-    private static final String IS_DRAFT = "isDraft";
+
+    private static final String TEST_HASH_TOKEN = "hashToken";
+    private static final String TEST_DEFAULT_NAME_FOR_PDF_FILE = "FPRLDocument.pdf";
 
     @Autowired
     private MockMvc webClient;
 
-    @Value("${docmosis.service.pdf-service.uri}")
-    private String docmosisPdfServiceUri;
+    @ClassRule
+    public static WireMockClassRule caseDocsClientApiServiceServer = new WireMockClassRule(5170);
 
-    @Value("${service.evidence-management-client-api.uri}")
-    private String emClientAPIUri;
+    @ClassRule
+    public static WireMockClassRule docmosisClientServiceServer = new WireMockClassRule(5501);
+
+    @ClassRule
+    public static WireMockClassRule serviceAuthServer = new WireMockClassRule(4502);
 
     @MockBean
     private AuthTokenGenerator serviceTokenGenerator;
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
-    private DocumentManagementServiceImpl documentManagementService;
-
-    private MockRestServiceServer mockRestServiceServer;
-
-    @Before
-    public void before() {
-        mockRestServiceServer = MockRestServiceServer.createServer(restTemplate);
-    }
 
     @Test
     public void givenTemplateNameIsNull_whenGenerateAndStoreDocument_thenReturnHttp400() throws Exception {
@@ -143,7 +126,6 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
-    @Ignore
     public void givenCouldNotConnectToAuthService_whenGenerateAndStoreDocument_thenReturnHttp503() throws Exception {
         Map<String, Object> caseData = new HashMap<>();
 
@@ -153,6 +135,7 @@ public class DocumentGenerateAndStoreE2ETest {
 
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
+        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
         webClient.perform(post(API_URL)
@@ -163,16 +146,15 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     @Test
-    @Ignore
     public void givenAuthServiceReturnAuthenticationError_whenGenerateAndStoreDocument_thenReturnHttp401() throws Exception {
         Map<String, Object> caseData = new HashMap<>();
-
         Map<String, Object> requestData = Collections.singletonMap(
             CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData)
         );
 
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
+        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         webClient.perform(post(API_URL)
@@ -180,46 +162,6 @@ public class DocumentGenerateAndStoreE2ETest {
             .contentType(MediaType.APPLICATION_JSON)
             .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
-    }
-
-    @Test
-    @Ignore
-    public void givenObjectMapperThrowsException_whenGenerateAndStoreDocument_thenReturnHttp500() throws Exception {
-        final ObjectMapper objectMapper = mock(ObjectMapper.class);
-
-        final Map<String, Object> values = new HashMap<>();
-        values.put("someKey", "someValue");
-        values.put(IS_DRAFT, false);
-
-        Map<String, Object> requestData = Collections.singletonMap(
-            CASE_DETAILS, Collections.singletonMap(CASE_DATA, values)
-        );
-        final String securityToken = "securityToken";
-        final Instant instant = Instant.now();
-        mockAndSetClock(instant);
-
-        final Map<String, Object> valuesWithDate = new HashMap<>(values);
-        valuesWithDate.put(CURRENT_DATE_KEY, new SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
-            .format(Date.from(instant)));
-
-        Map<String, Object> requestDataWithDate = Collections.singletonMap(
-            CASE_DETAILS, Collections.singletonMap(CASE_DATA, valuesWithDate)
-        );
-
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
-
-        final GenerateDocumentRequest requestToPDFService = new GenerateDocumentRequest(TEST_EXAMPLE, requestDataWithDate);
-
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
-        when(objectMapper.writeValueAsString(requestToPDFService)).thenThrow(mock(JsonProcessingException.class));
-
-        webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
-            .andExpect(status().isInternalServerError());
-
-        mockRestServiceServer.verify();
     }
 
     @Test
@@ -234,9 +176,10 @@ public class DocumentGenerateAndStoreE2ETest {
         final Map<String, Object> values = new HashMap<>();
         values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
 
-        mockDocmosisPDFService(HttpStatus.OK, new byte[] {1});
-        final FileUploadResponse fileUploadResponse = getFileUploadResponse(HttpStatus.OK);
-        mockEMClientAPI(HttpStatus.OK, Collections.singletonList(fileUploadResponse));
+        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
+
+        UploadResponse uploadResponse = new UploadResponse(List.of(mockCaseDocsDocuments()));
+        mockCaseDocsClientApi(HttpStatus.OK, uploadResponse);
 
         final String securityToken = "securityToken";
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
@@ -253,46 +196,62 @@ public class DocumentGenerateAndStoreE2ETest {
         //Then
         final GeneratedDocumentInfo generatedDocumentInfo = getGeneratedDocumentInfo();
         assertEquals(ObjectMapperTestUtil.convertObjectToJsonString(generatedDocumentInfo), result.getResponse().getContentAsString());
-        mockRestServiceServer.verify();
     }
 
-    private FileUploadResponse getFileUploadResponse(HttpStatus httpStatus) {
-        final FileUploadResponse fileUploadResponse = new FileUploadResponse(httpStatus);
-        fileUploadResponse.setFileUrl(FILE_URL);
-        fileUploadResponse.setMimeType(MIME_TYPE);
-        fileUploadResponse.setCreatedOn(CREATED_ON);
-        fileUploadResponse.setCreatedBy(CREATED_BY);
-        return fileUploadResponse;
-    }
-
-    private GeneratedDocumentInfo getGeneratedDocumentInfo() {
+    private GeneratedDocumentInfo getGeneratedDocumentInfo() throws ParseException {
         GeneratedDocumentInfo generatedDocumentInfo = new GeneratedDocumentInfo();
         generatedDocumentInfo.setUrl(FILE_URL);
         generatedDocumentInfo.setMimeType(MIME_TYPE);
-        generatedDocumentInfo.setCreatedOn(CREATED_ON);
+        generatedDocumentInfo.setCreatedOn(generateDate().toString());
         return generatedDocumentInfo;
     }
 
-    private void mockAndSetClock(Instant instant) {
-        final Clock clock = mock(Clock.class);
-        when(clock.instant()).thenReturn(instant);
-
-        ReflectionTestUtils.setField(documentManagementService, "clock", clock);
+    private void mockDocmosisPdfService(HttpStatus expectedResponse, byte[] body) {
+        docmosisClientServiceServer.stubFor(WireMock.post(DOCMOSIS_API_URL)
+            .willReturn(aResponse()
+                .withStatus(expectedResponse.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(ObjectMapperTestUtil.convertObjectToJsonString(body))
+            ));
     }
 
-    private void mockDocmosisPDFService(HttpStatus expectedResponse, byte[] body) {
-        mockRestServiceServer.expect(once(), requestTo(docmosisPdfServiceUri)).andExpect(method(HttpMethod.POST))
-            .andRespond(withStatus(expectedResponse)
-                .body(ObjectMapperTestUtil.convertObjectToJsonBytes(body))
-                .contentType(MediaType.APPLICATION_JSON));
+    private void mockServiceAuthServer(HttpStatus expectedResponse, String body) {
+        serviceAuthServer.stubFor(WireMock.post(DOCMOSIS_API_URL)
+            .willReturn(aResponse()
+                .withStatus(expectedResponse.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(ObjectMapperTestUtil.convertObjectToJsonString(body))
+            ));
     }
 
-    private void mockEMClientAPI(HttpStatus expectedResponse, List<FileUploadResponse> fileUploadResponse) {
-        mockRestServiceServer.expect(once(), requestTo(emClientAPIUri))
-            .andExpect(method(HttpMethod.POST))
-            .andRespond(withStatus(expectedResponse)
-                .body(ObjectMapperTestUtil.convertObjectToJsonString(fileUploadResponse))
-                .contentType(MediaType.APPLICATION_JSON));
+    private void mockCaseDocsClientApi(HttpStatus expectedResponse, UploadResponse uploadResponse) {
+        caseDocsClientApiServiceServer.stubFor(WireMock.post(CASE_DOCS_API_URL)
+            .willReturn(aResponse()
+                .withStatus(expectedResponse.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(ObjectMapperTestUtil.convertObjectToJsonString(uploadResponse))
+            ));
     }
 
+    private Document mockCaseDocsDocuments() throws ParseException {
+        Document.Link link = new Document.Link();
+        link.href = FILE_URL;
+
+        Document.Links links = new Document.Links();
+        links.self = link;
+
+        return Document.builder()
+            .createdOn(generateDate())
+            .links(links)
+            .hashToken(TEST_HASH_TOKEN)
+            .mimeType(MIME_TYPE)
+            .originalDocumentName(TEST_DEFAULT_NAME_FOR_PDF_FILE)
+            .build();
+    }
+
+    private Date generateDate() throws ParseException {
+        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
+
+        return format.parse(TEST_DATE);
+    }
 }

@@ -7,12 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class EvidenceManagementClientHealthCheck extends WebServiceHealthCheck {
+public class DocmosisHealthCheck extends WebServiceHealthCheck {
     @Autowired
-    public EvidenceManagementClientHealthCheck(HttpEntityFactory httpEntityFactory,
-                                               @Qualifier("healthCheckRestTemplate") RestTemplate restTemplate,
-                                               @Value("${service.evidence-management-client-api.health.uri}")
-                                                       String uri) {
+    public DocmosisHealthCheck(HttpEntityFactory httpEntityFactory,
+                               @Qualifier("healthCheckRestTemplate") RestTemplate restTemplate,
+                               @Value("${docmosis.service.pdf-service.health}") String uri) {
         super(httpEntityFactory, restTemplate, uri);
     }
 }

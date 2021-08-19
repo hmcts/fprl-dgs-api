@@ -55,7 +55,7 @@ pdf:
 document:
     templates:
         configurationList:
-            -   templateName: FPRL-TEST-DOCUMENT.docx
+            -   templateName: FL-DIV-GOR-ENG-00062.docx
                 filename: TestTemplate.pdf
                 document-generator: docmosis
     pdf:

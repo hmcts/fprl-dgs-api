@@ -7,11 +7,11 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 @Component
-public class PDFServiceHealthCheck extends WebServiceHealthCheck {
+public class CaseDocumentHealthCheck extends WebServiceHealthCheck {
     @Autowired
-    public PDFServiceHealthCheck(HttpEntityFactory httpEntityFactory,
-                                 @Qualifier("healthCheckRestTemplate") RestTemplate restTemplate,
-                                 @Value("${service.pdf-service.health.uri}") String uri) {
-        super(httpEntityFactory, restTemplate, uri);
+    public CaseDocumentHealthCheck(HttpEntityFactory httpEntityFactory,
+                                   @Qualifier("healthCheckRestTemplate") RestTemplate restTemplate,
+                                   @Value("${case_document_am.url}") String uri) {
+        super(httpEntityFactory, restTemplate, uri + "/health");
     }
 }

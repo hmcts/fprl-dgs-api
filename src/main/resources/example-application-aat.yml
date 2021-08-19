@@ -19,9 +19,12 @@ auth:
       client:
           baseUrl: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
 
+case_document_am:
+    url: ${CCD_CASE_DOCS_AM_API:http://ccd-case-document-am-api-aat.service.core-compute-aat.internal}
+
 idam:
   s2s-auth:
-    microservice: ${AUTH_PROVIDER_SERVICE_CLIENT_MICROSERVICE:divorce_document_generator}
+    microservice: ${AUTH_PROVIDER_SERVICE_CLIENT_MICROSERVICE:fprl-dgs-api}
     totp_secret: ${AUTH_PROVIDER_SERVICE_CLIENT_KEY:replace_me}
     url: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
 

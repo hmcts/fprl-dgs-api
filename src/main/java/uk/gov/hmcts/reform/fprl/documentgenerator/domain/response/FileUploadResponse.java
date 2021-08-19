@@ -16,8 +16,8 @@ public class FileUploadResponse {
     private String lastModifiedBy;
     private String createdOn;
     private String modifiedOn;
+    private String documentHash;
 
     @NonNull
     private HttpStatus status;
-
 }

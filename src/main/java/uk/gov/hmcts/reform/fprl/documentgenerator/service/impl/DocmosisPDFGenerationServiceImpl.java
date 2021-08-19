@@ -57,7 +57,6 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
 
             HttpEntity<PdfDocumentRequest> httpEntity = new HttpEntity<>(request(templateName, placeholders), headers);
 
-            // RPET-241 - PROBLEM - NESTED EXCEPTION
             ResponseEntity<byte[]> response =
                 restTemplate.exchange(docmosisPdfServiceEndpoint, HttpMethod.POST, httpEntity, byte[].class);
 

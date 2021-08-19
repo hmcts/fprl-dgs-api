@@ -1,97 +1,67 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
+import uk.gov.hmcts.reform.ccd.document.am.model.Document;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.pdf.ByteArrayMultipartFile;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.exception.DocumentStorageException;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.EvidenceManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.util.NullOrEmptyValidator;
 
-import java.util.List;
-import java.util.Optional;
+import static java.util.Collections.singletonList;
+import static org.springframework.http.MediaType.APPLICATION_PDF;
 
 @Service
 @Slf4j
+@AllArgsConstructor
 @ConditionalOnProperty(value = "evidence-management-api.service.stub.enabled", havingValue = "false")
 public class EvidenceManagementServiceImpl implements EvidenceManagementService {
-    private static final String AUTHORIZATION_HEADER = "Authorization";
-    private static final String FILE_PARAMETER = "file";
-    private static final String DEFAULT_NAME_FOR_PDF_FILE = "FPRLDocument.pdf";
 
-    @Value("${service.evidence-management-client-api.uri}")
-    private String evidenceManagementEndpoint;
+    private final CaseDocumentClient caseDocumentClient;
 
-    @Autowired
-    private RestTemplate restTemplate;
+    private final AuthTokenGenerator authTokenGenerator;
 
     @Override
-    public FileUploadResponse storeDocumentAndGetInfo(byte[] document, String authorizationToken, String fileName) {
-        log.info("Save document call to evidence management is made document of size [{}]", document.length);
+    public FileUploadResponse storeDocumentAndGetInfo(byte[] documentByte, String authorizationToken, String fileName) {
+        ByteArrayMultipartFile file = ByteArrayMultipartFile.builder().content(documentByte).name(fileName)
+            .contentType(APPLICATION_PDF).build();
 
         try {
-            FileUploadResponse fileUploadResponse = storeDocument(document, authorizationToken, fileName);
+            String serviceAuthorisation = authTokenGenerator.generate();
+            UploadResponse caseDocsUploadResponse = caseDocumentClient.uploadDocuments(
+                authorizationToken,
+                serviceAuthorisation,
+                "C100",
+                "PRIVATELAW",
+                singletonList(file));
 
-            if (fileUploadResponse.getStatus() == HttpStatus.OK) {
-                return fileUploadResponse;
-            } else {
-                throw new DocumentStorageException("Failed to store document");
-            }
+            return createFileUploadResponse(caseDocsUploadResponse.getDocuments().get(0));
         } catch (Exception e) {
-            throw new DocumentStorageException("Error storing document " + e.getMessage(), e);
+            log.error("Case Docs service failed to upload documents... {}", e.getMessage());
+            if (null != file) {
+                log.info("Case Docs file Name: {}", file.getName());
+                log.info("Case Docs file OriginalName: {}", file.getOriginalFilename());
+            }
+
+            throw new DocumentStorageException("Case Docs Failed to store document", e);
         }
     }
 
-    private FileUploadResponse storeDocument(byte[] document, String authorizationToken, String fileName) {
-        NullOrEmptyValidator.requireNonEmpty(document);
+    private FileUploadResponse createFileUploadResponse(Document document) {
+        FileUploadResponse fileUploadResponse = new FileUploadResponse(HttpStatus.OK);
 
-        ResponseEntity<List<FileUploadResponse>> responseEntity = restTemplate.exchange(evidenceManagementEndpoint,
-            HttpMethod.POST,
-            new HttpEntity<>(
-                buildRequest(document, Optional.ofNullable(fileName).orElse(DEFAULT_NAME_FOR_PDF_FILE)),
-                getHttpHeaders(authorizationToken)),
-            new ParameterizedTypeReference<List<FileUploadResponse>>() {
-            });
+        fileUploadResponse.setFileUrl(document.links.self.href);
+        fileUploadResponse.setFileName(document.originalDocumentName);
+        fileUploadResponse.setCreatedOn(document.createdOn.toString());
+        fileUploadResponse.setMimeType(document.mimeType);
+        fileUploadResponse.setDocumentHash(document.hashToken);
 
-        return Optional.ofNullable(responseEntity.getBody())
-            .map(fileUploadResponses -> fileUploadResponses.get(0))
-            .orElseThrow(() -> new DocumentStorageException("FileUploadResponse is null"));
-    }
-
-    private HttpHeaders getHttpHeaders(String authToken) {
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-        headers.add(AUTHORIZATION_HEADER, authToken);
-        return headers;
-    }
-
-    private LinkedMultiValueMap<String, Object> buildRequest(byte[] document, String filename) {
-        LinkedMultiValueMap<String, Object> parameters = new LinkedMultiValueMap<>();
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-
-        HttpEntity<Resource> httpEntity = new HttpEntity<>(new ByteArrayResource(document) {
-            @Override
-            public String getFilename() {
-                return filename;
-            }
-        }, headers);
-
-        parameters.add(FILE_PARAMETER, httpEntity);
-        return parameters;
+        return fileUploadResponse;
     }
 }
