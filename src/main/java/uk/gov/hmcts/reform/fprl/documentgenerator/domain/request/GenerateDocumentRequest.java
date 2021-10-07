@@ -13,9 +13,9 @@ import javax.validation.constraints.NotBlank;
 public class GenerateDocumentRequest {
     @ApiModelProperty(value = "Name of the template", required = true)
     @JsonProperty(value = "template", required = true)
-    @NotBlank
-    private final String template;
+    @NotBlank String template;
+
     @JsonProperty(value = "values", required = true)
     @ApiModelProperty(value = "Placeholder key / value pairs", required = true)
-    private final Map<String, Object> values;
+    Map<String, Object> values;
 }

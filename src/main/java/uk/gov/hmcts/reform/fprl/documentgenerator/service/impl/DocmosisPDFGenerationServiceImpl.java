@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -22,14 +23,12 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Strings.isNullOrEmpty;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
 
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Autowired
-    private TemplateDataMapper templateDataMapper;
+    private final RestTemplate restTemplate;
+    private final TemplateDataMapper templateDataMapper;
 
     @Value("${docmosis.service.pdf-service.uri}")
     private String docmosisPdfServiceEndpoint;
@@ -74,5 +73,4 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
             .devMode(docmosisDevMode)
             .data(templateDataMapper.map(placeholders)).build();
     }
-
 }

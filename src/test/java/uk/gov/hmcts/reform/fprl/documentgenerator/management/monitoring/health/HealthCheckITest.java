@@ -42,13 +42,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ContextConfiguration(
-        classes = {DocumentGeneratorApplication.class, HealthCheckITest.LocalRibbonClientConfiguration.class})
+    classes = {DocumentGeneratorApplication.class, HealthCheckITest.LocalRibbonClientConfiguration.class})
 @PropertySource(value = "classpath:application.properties")
 @TestPropertySource(properties = {
-        "management.endpoint.health.cache.time-to-live=0",
-        "feign.hystrix.enabled=true",
-        "eureka.client.enabled=false",
-    })
+    "management.endpoint.health.cache.time-to-live=0",
+    "feign.hystrix.enabled=true",
+    "eureka.client.enabled=false",
+})
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
 public class HealthCheckITest {
 
@@ -85,14 +85,6 @@ public class HealthCheckITest {
     @After
     public void tearDown() {
         resetAllMockServices();
-    }
-
-    private static WireMockConfiguration buildWireMockConfig(int port) {
-        return WireMockSpring
-            .options()
-            .port(port)
-            .jettyStopTimeout(20L)
-            .extensions(new ConnectionCloseExtension());
     }
 
     @Test
@@ -205,12 +197,12 @@ public class HealthCheckITest {
             equalTo("UP"));
     }
 
-    private void stubEndpointAndResponse(WireMockClassRule mockServer, boolean serviceUp) {
-        mockServer.stubFor(get(urlEqualTo("/health"))
-            .willReturn(aResponse()
-                .withStatus(serviceUp ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value())
-                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
-                .withBody(serviceUp ? HEALTH_UP_RESPONSE : HEALTH_DOWN_RESPONSE)));
+    @TestConfiguration
+    public static class LocalRibbonClientConfiguration {
+        @Bean
+        public ServerList<Server> ribbonServerList(@Value("${auth.provider.service.client.port}") int serverPort) {
+            return new StaticServerList<>(new Server("localhost", serverPort));
+        }
     }
 
     protected final void resetAllMockServices() {
@@ -218,11 +210,19 @@ public class HealthCheckITest {
         docmosisService.resetAll();
     }
 
-    @TestConfiguration
-    public static class LocalRibbonClientConfiguration {
-        @Bean
-        public ServerList<Server> ribbonServerList(@Value("${auth.provider.service.client.port}") int serverPort) {
-            return new StaticServerList<>(new Server("localhost", serverPort));
-        }
+    private static WireMockConfiguration buildWireMockConfig(int port) {
+        return WireMockSpring
+            .options()
+            .port(port)
+            .jettyStopTimeout(20L)
+            .extensions(new ConnectionCloseExtension());
+    }
+
+    private void stubEndpointAndResponse(WireMockClassRule mockServer, boolean serviceUp) {
+        mockServer.stubFor(get(urlEqualTo("/health"))
+            .willReturn(aResponse()
+                .withStatus(serviceUp ? HttpStatus.OK.value() : HttpStatus.SERVICE_UNAVAILABLE.value())
+                .withHeader(CONTENT_TYPE, APPLICATION_JSON_VALUE)
+                .withBody(serviceUp ? HEALTH_UP_RESPONSE : HEALTH_DOWN_RESPONSE)));
     }
 }

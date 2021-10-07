@@ -3,16 +3,19 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.authorisation.generators.ServiceAuthTokenGenerator;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
+import uk.gov.hmcts.reform.ccd.document.am.model.Document;
+import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
-import uk.gov.hmcts.reform.fprl.documentgenerator.mapper.GeneratedDocumentInfoMapper;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.EvidenceManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -32,31 +35,40 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
 
     private final Clock clock = Clock.systemDefaultZone();
 
-    private final PDFGenerationFactory pdfGenerationFactory;
-    private final EvidenceManagementService evidenceManagementService;
+    private final PDFGenerationService pdfGenerationService;
+    private final CaseDocumentClientApi caseDocumentClientApi;
+    private final ServiceAuthTokenGenerator serviceAuthTokenGenerator;
     private final TemplatesConfiguration templatesConfiguration;
 
     @Override
-    public GeneratedDocumentInfo generateAndStoreDocument(String templateName, Map<String, Object> placeholders,
-                                                          String authorizationToken) {
+    public GeneratedDocumentInfo generateAndStoreDocument(
+        String templateName,
+        Map<String, Object> placeholders,
+        String userAuthToken) {
         String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
-        return getGeneratedDocumentInfo(templateName, placeholders, authorizationToken, fileName);
+
+        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken, fileName);
     }
 
     @Override
-    public GeneratedDocumentInfo generateAndStoreDraftDocument(String templateName,
-                                                               Map<String, Object> placeholders, String authorizationToken) {
+    public GeneratedDocumentInfo generateAndStoreDraftDocument(
+        String templateName,
+        Map<String, Object> placeholders,
+        String userAuthToken) {
         String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
         if (!fileName.startsWith(DRAFT_PREFIX)) {
             fileName = String.join("", DRAFT_PREFIX, fileName);
         }
         placeholders.put(IS_DRAFT, true);
 
-        return getGeneratedDocumentInfo(templateName, placeholders, authorizationToken, fileName);
+        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken, fileName);
     }
 
-    private GeneratedDocumentInfo getGeneratedDocumentInfo(String templateName, Map<String, Object> placeholders,
-                                                           String authorizationToken, String fileName) {
+    private GeneratedDocumentInfo getGeneratedDocumentInfo(
+        String templateName,
+        Map<String, Object> placeholders,
+        String userAuthToken,
+        String fileName) {
         log.debug("Generate and Store Document requested with templateName [{}], placeholders of size [{}]",
             templateName, placeholders.size());
         String caseId = getCaseId(placeholders);
@@ -69,35 +81,49 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         placeholders.put(
             CURRENT_DATE_KEY,
             new SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
-                .format(Date.from(clock.instant())
-                )
+                .format(Date.from(clock.instant()))
         );
 
         byte[] generatedDocument = generateDocument(templateName, placeholders);
         log.info("Document generated for case Id {}", caseId);
-        return storeDocument(generatedDocument, authorizationToken, fileName);
+
+        return storeDocument(generatedDocument, userAuthToken, fileName);
     }
 
-    @Override
-    public GeneratedDocumentInfo storeDocument(byte[] document, String authorizationToken, String fileName) {
+    private GeneratedDocumentInfo storeDocument(byte[] document, String userAuthToken, String fileName) {
         log.debug("Store document requested with document of size [{}]", document.length);
-        return GeneratedDocumentInfoMapper.mapToGeneratedDocumentInfo(
-            evidenceManagementService.storeDocumentAndGetInfo(document, authorizationToken, fileName)
+
+        // we need to map byte[] document to List<MultipartFile> files
+        DocumentUploadRequest documentUploadRequest = new DocumentUploadRequest(
+            "PUBLIC", "C100", "Family Law", new ArrayList<>()
         );
+
+        UploadResponse uploadResponse = caseDocumentClientApi
+            .uploadDocuments(
+                userAuthToken,
+                serviceAuthTokenGenerator.generate(),
+                documentUploadRequest
+            );
+
+        Document uploadedDocument = uploadResponse.getDocuments().get(0);
+
+        return GeneratedDocumentInfo.builder()
+            .createdOn(uploadedDocument.createdOn.toString())
+            .mimeType(uploadedDocument.mimeType)
+            .url(uploadedDocument.links.self.href)
+            .build();
     }
 
     @Override
     public byte[] generateDocument(String templateName, Map<String, Object> placeholders) {
-        log.debug("Generate document requested with templateName [{}], placeholders of size[{}]",
-            templateName, placeholders.size());
+        log.info("Generate document [{}], placeholders of size[{}]", templateName, placeholders.size());
 
-        PDFGenerationService generatorService = pdfGenerationFactory.getGeneratorService(templateName);
-        return generatorService.generate(templateName, placeholders);
+        return pdfGenerationService.generate(templateName, placeholders);
     }
 
     private String getCaseId(Map<String, Object> placeholders) {
         Map<String, Object> caseDetails = (Map<String, Object>) placeholders.getOrDefault("caseDetails", emptyMap());
+
         return (String) caseDetails.get("id");
     }
-
 }

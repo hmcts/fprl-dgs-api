@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PdfDocumentRequest;
 import uk.gov.hmcts.reform.fprl.documentgenerator.exception.PDFGenerationException;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.util.NullOrEmptyValidator;
 
 import java.util.Collections;
@@ -46,8 +47,7 @@ public class DocmosisPDFGenerationServiceImplUTest {
     private RestTemplate restTemplate;
 
     @InjectMocks
-    @Spy
-    private final DocmosisPDFGenerationServiceImpl classUnderTest = new DocmosisPDFGenerationServiceImpl();
+    private PDFGenerationService classUnderTest;
 
     @Before
     public void before() {

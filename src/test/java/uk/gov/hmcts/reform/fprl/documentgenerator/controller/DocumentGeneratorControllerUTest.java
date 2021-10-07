@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -31,7 +30,7 @@ public class DocumentGeneratorControllerUTest {
         final String templateName = "templateName";
         final Map<String, Object> placeholder = Collections.emptyMap();
 
-        final GeneratedDocumentInfo expected = new GeneratedDocumentInfo();
+        final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
         when(documentManagementService.generateAndStoreDocument(templateName, placeholder, "testToken"))
             .thenReturn(expected);
@@ -41,8 +40,8 @@ public class DocumentGeneratorControllerUTest {
 
         assertEquals(expected, actual);
 
-        verify(documentManagementService, times(1))
-                .generateAndStoreDocument(templateName, placeholder, "testToken");
+        verify(documentManagementService)
+            .generateAndStoreDocument(templateName, placeholder, "testToken");
     }
 
     @Test
@@ -50,7 +49,7 @@ public class DocumentGeneratorControllerUTest {
         final String templateName = "templateName";
         final Map<String, Object> placeholder = Collections.emptyMap();
 
-        final GeneratedDocumentInfo expected = new GeneratedDocumentInfo();
+        final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
         when(documentManagementService.generateAndStoreDraftDocument(templateName, placeholder, "testToken"))
             .thenReturn(expected);
@@ -61,7 +60,7 @@ public class DocumentGeneratorControllerUTest {
         assertEquals(expected, actual);
 
         verify(documentManagementService)
-                .generateAndStoreDraftDocument(templateName, placeholder, "testToken");
+            .generateAndStoreDraftDocument(templateName, placeholder, "testToken");
     }
 
 }

@@ -40,7 +40,7 @@ variable "idam_s2s_url_prefix" {
 }
 
 variable "auth_provider_service_client_microservice" {
-  default = "divorce_document_generator"
+  default = "fprl_dgs_api"
 }
 
 variable "auth_provider_service_client_tokentimetoliveinseconds" {
@@ -49,14 +49,6 @@ variable "auth_provider_service_client_tokentimetoliveinseconds" {
 
 variable "pdf_service_url_part" {
   default = "cmc-pdf-service"
-}
-
-variable "evidence_management_client_api_url_part" {
-  default = "div-emca"
-}
-
-variable "evidence_management_client_api_health_endpoint" {
-  default = "/health"
 }
 
 variable "subscription" {}

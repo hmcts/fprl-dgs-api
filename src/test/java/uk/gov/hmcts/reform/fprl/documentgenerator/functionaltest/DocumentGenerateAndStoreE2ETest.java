@@ -42,6 +42,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = DocumentGeneratorApplication.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -91,9 +92,9 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }
 
@@ -105,9 +106,9 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }
 
@@ -119,9 +120,9 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isBadRequest());
     }
 
@@ -135,13 +136,13 @@ public class DocumentGenerateAndStoreE2ETest {
 
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
-        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
+        mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isServiceUnavailable());
     }
 
@@ -154,13 +155,13 @@ public class DocumentGenerateAndStoreE2ETest {
 
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
 
-        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
+        mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isUnauthorized());
     }
 
@@ -176,7 +177,7 @@ public class DocumentGenerateAndStoreE2ETest {
         final Map<String, Object> values = new HashMap<>();
         values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
 
-        mockDocmosisPdfService(HttpStatus.OK, new byte[] {1});
+        mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
 
         UploadResponse uploadResponse = new UploadResponse(List.of(mockCaseDocsDocuments()));
         mockCaseDocsClientApi(HttpStatus.OK, uploadResponse);
@@ -187,9 +188,9 @@ public class DocumentGenerateAndStoreE2ETest {
         //When
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(templateId, values);
         MvcResult result = webClient.perform(post(API_URL)
-            .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
-            .contentType(MediaType.APPLICATION_JSON)
-            .accept(MediaType.APPLICATION_JSON))
+                .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
             .andReturn();
 
@@ -199,11 +200,11 @@ public class DocumentGenerateAndStoreE2ETest {
     }
 
     private GeneratedDocumentInfo getGeneratedDocumentInfo() throws ParseException {
-        GeneratedDocumentInfo generatedDocumentInfo = new GeneratedDocumentInfo();
-        generatedDocumentInfo.setUrl(FILE_URL);
-        generatedDocumentInfo.setMimeType(MIME_TYPE);
-        generatedDocumentInfo.setCreatedOn(generateDate().toString());
-        return generatedDocumentInfo;
+        return GeneratedDocumentInfo.builder()
+            .url(FILE_URL)
+            .mimeType(MIME_TYPE)
+            .createdOn(generateDate().toString())
+            .build();
     }
 
     private void mockDocmosisPdfService(HttpStatus expectedResponse, byte[] body) {

@@ -15,7 +15,7 @@ import uk.gov.hmcts.reform.authorisation.generators.ServiceAuthTokenGenerator;
 
 @Lazy
 @Configuration
-@ComponentScan(basePackages = {"uk.gov.hmcts.reform.fprl.divorce", "uk.gov.hmcts.auth.provider.service"})
+@ComponentScan(basePackages = {"uk.gov.hmcts.reform.fprl", "uk.gov.hmcts.reform.authorisation.generators"})
 @PropertySource({"classpath:application.properties"})
 @PropertySource({"classpath:application-${env}.properties"})
 public class ServiceContextConfiguration {

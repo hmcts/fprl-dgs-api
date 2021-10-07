@@ -5,13 +5,18 @@ import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocum
 import java.util.Map;
 
 public interface DocumentManagementService {
-    GeneratedDocumentInfo generateAndStoreDocument(String templateName, Map<String, Object> placeholders,
-                                                   String authorizationToken);
 
-    GeneratedDocumentInfo generateAndStoreDraftDocument(String templateName, Map<String, Object> placeholders,
-                                                   String authorizationToken);
+    GeneratedDocumentInfo generateAndStoreDocument(
+        String templateName,
+        Map<String, Object> placeholders,
+        String userAuthToken
+    );
 
-    GeneratedDocumentInfo storeDocument(byte[] document, String authorizationToken, String fileName);
+    GeneratedDocumentInfo generateAndStoreDraftDocument(
+        String templateName,
+        Map<String, Object> placeholders,
+        String userAuthToken
+    );
 
     byte[] generateDocument(String templateName, Map<String, Object> placeholders);
 }

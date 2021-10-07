@@ -5,6 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import uk.gov.hmcts.reform.authorisation.ServiceAuthAutoConfiguration;
 
+@EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.fprl"})
 @SpringBootApplication(
     scanBasePackages = {"uk.gov.hmcts.reform.fprl",
         "uk.gov.hmcts.reform.logging.appinsights",

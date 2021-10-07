@@ -13,8 +13,8 @@ import java.util.Map;
 @Component
 public class PDFGenerationFactory {
 
-    private TemplatesConfiguration templatesConfiguration;
-    private Map<String, PDFGenerationService> generatorMap;
+    private final TemplatesConfiguration templatesConfiguration;
+    private final Map<String, PDFGenerationService> generatorMap;
 
     @Autowired
     public PDFGenerationFactory(TemplatesConfiguration templatesConfiguration,

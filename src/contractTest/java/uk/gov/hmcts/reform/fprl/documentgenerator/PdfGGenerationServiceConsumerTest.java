@@ -54,11 +54,12 @@ public class PdfGGenerationServiceConsumerTest {
 
     @MockBean
     private AuthTokenGenerator serviceTokenGenerator;
+
     @MockBean
     private TemplateManagementService templateManagementService;
     private final String someServiceAuthToken = "someServiceAuthToken";
     private final String template = "<html><body><div>Case number: {{ caseNo }}</div></body></html>";
-    private Map placeholders = Map.of("caseNo", "12345");
+    private Map<String, Object> placeholders = Map.of("caseNo", "12345");
 
     @BeforeEach
     public void setUpEachTest() throws InterruptedException, IOException {
@@ -66,17 +67,17 @@ public class PdfGGenerationServiceConsumerTest {
     }
 
     @After
-    void teardown() {
+    public void teardown() {
         Executor.closeIdleConnections();
     }
 
-    @Pact(provider = "rpePdfService_PDFGenerationEndpointV2", consumer = "divorce_documentGeneratorClient")
+    @Pact(provider = "rpePdfService_PDFGenerationEndpointV2", consumer = "fprl_documentGeneratorClient")
     RequestResponsePact generatePdfFromTemplate(PactDslWithProvider builder) throws JSONException, IOException {
         // @formatter:off
 
         return builder
-            .given("A request to generate a divorce pdf document")
-            .uponReceiving("a request to generate a divorce pdf document with a template")
+            .given("A request to generate a pdf document")
+            .uponReceiving("a request to generate a pdf document with a template")
             .method("POST")
             .headers(SERVICE_AUTHORIZATION_HEADER, someServiceAuthToken)
             .body(createJsonObject(new GenerateDocumentRequest(template, placeholders)),
