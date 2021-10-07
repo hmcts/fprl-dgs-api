@@ -12,7 +12,8 @@ docmosis:
         pdf-service:
             accessKey: ${DOCMOSIS_SERVICE_ACCESS_KEY:23432}
             renderEndpoint: "/rs/render"
-            uri: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}${docmosis.service.pdf-service.renderEndpoint}
+            baseUrl: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}
+            uri: ${baseUrl}${docmosis.service.pdf-service.renderEndpoint}
             health: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}/health
             devMode: ${DOCMOSIS_SERVICE_DEV_MODE_FLAG:false}
 
@@ -74,11 +75,6 @@ service-auth-provider:
         stub:
             enabled: false
 
-evidence-management-api:
-    service:
-        stub:
-            enabled: false
-
 documentation:
     swagger:
         enabled: true
@@ -88,6 +84,11 @@ spring:
         name: "fprl-dgs-api"
     resources:
         static-locations:
+    main:
+        allow-bean-definition-overriding: true
+    cloud:
+        discovery:
+            enabled: false
 
 # GENERAL SPRING BOOT ACTUATOR CONFIG
 # Context path for Spring Boot Actuator endpoints
@@ -119,6 +120,8 @@ management:
       case-document-am-api:
           enabled: true
 
+case-document-am-api: true
+
 logging:
     level:
         org.springframework.web: ERROR
@@ -128,3 +131,4 @@ logging:
 
 azure:
     app_insights_key: ${APPINSIGHTS_INSTRUMENTATIONKEY:false}
+

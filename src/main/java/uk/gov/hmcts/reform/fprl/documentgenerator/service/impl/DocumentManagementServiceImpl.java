@@ -3,12 +3,13 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.reform.authorisation.generators.ServiceAuthTokenGenerator;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClientApi;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
@@ -37,48 +38,45 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
 
     private final PDFGenerationService pdfGenerationService;
     private final CaseDocumentClientApi caseDocumentClientApi;
-    private final ServiceAuthTokenGenerator serviceAuthTokenGenerator;
+    private final AuthTokenGenerator serviceAuthTokenGenerator;
     private final TemplatesConfiguration templatesConfiguration;
 
     @Override
     public GeneratedDocumentInfo generateAndStoreDocument(
         String templateName,
-        Map<String, Object> placeholders,
+        PlaceholderData placeholders,
         String userAuthToken) {
         String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
 
-        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken, fileName);
+        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken);
     }
 
     @Override
     public GeneratedDocumentInfo generateAndStoreDraftDocument(
         String templateName,
-        Map<String, Object> placeholders,
+        PlaceholderData placeholders,
         String userAuthToken) {
         String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
-        if (!fileName.startsWith(DRAFT_PREFIX)) {
-            fileName = String.join("", DRAFT_PREFIX, fileName);
-        }
-        placeholders.put(IS_DRAFT, true);
 
-        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken, fileName);
+        placeholders.getCaseDetails().getCaseData().put(IS_DRAFT, true);
+
+        return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken);
     }
 
     private GeneratedDocumentInfo getGeneratedDocumentInfo(
         String templateName,
-        Map<String, Object> placeholders,
-        String userAuthToken,
-        String fileName) {
+        PlaceholderData placeholders,
+        String userAuthToken) {
         log.debug("Generate and Store Document requested with templateName [{}], placeholders of size [{}]",
-            templateName, placeholders.size());
-        String caseId = getCaseId(placeholders);
+            templateName, placeholders.getCaseDetails().getCaseData().size());
+        String caseId = placeholders.getCaseDetails().getCaseId();
         if (caseId == null) {
             log.warn("caseId is null for template \"" + templateName + "\"");
+        } else {
+            log.info("Generating document for case Id {}", caseId);
         }
 
-        log.info("Generating document for case Id {}", caseId);
-
-        placeholders.put(
+        placeholders.getCaseDetails().getCaseData().put(
             CURRENT_DATE_KEY,
             new SimpleDateFormat(DATE_FORMAT, Locale.getDefault())
                 .format(Date.from(clock.instant()))
@@ -87,10 +85,10 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         byte[] generatedDocument = generateDocument(templateName, placeholders);
         log.info("Document generated for case Id {}", caseId);
 
-        return storeDocument(generatedDocument, userAuthToken, fileName);
+        return storeDocument(generatedDocument, userAuthToken);
     }
 
-    private GeneratedDocumentInfo storeDocument(byte[] document, String userAuthToken, String fileName) {
+    private GeneratedDocumentInfo storeDocument(byte[] document, String userAuthToken) {
         log.debug("Store document requested with document of size [{}]", document.length);
 
         // we need to map byte[] document to List<MultipartFile> files
@@ -115,15 +113,9 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     }
 
     @Override
-    public byte[] generateDocument(String templateName, Map<String, Object> placeholders) {
-        log.info("Generate document [{}], placeholders of size[{}]", templateName, placeholders.size());
+    public byte[] generateDocument(String templateName, PlaceholderData placeholders) {
+        log.info("Generate document [{}], placeholders of size[{}]", templateName, placeholders.getCaseDetails().getCaseData().size());
 
         return pdfGenerationService.generate(templateName, placeholders);
-    }
-
-    private String getCaseId(Map<String, Object> placeholders) {
-        Map<String, Object> caseDetails = (Map<String, Object>) placeholders.getOrDefault("caseDetails", emptyMap());
-
-        return (String) caseDetails.get("id");
     }
 }

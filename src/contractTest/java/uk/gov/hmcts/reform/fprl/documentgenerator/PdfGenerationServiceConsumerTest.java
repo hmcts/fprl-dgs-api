@@ -1,6 +1,5 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator;
 
-
 import au.com.dius.pact.consumer.dsl.PactDslWithProvider;
 import au.com.dius.pact.consumer.junit5.PactConsumerTestExt;
 import au.com.dius.pact.consumer.junit5.PactTestFor;
@@ -20,16 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.ResourceUtils;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.CaseDetails;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.TemplateManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPDFGenerationServiceImpl;
+import uk.gov.hmcts.reform.fprl.documentgenerator.service.impl.DocmosisPdfGenerationServiceImpl;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.mockito.Mockito.when;
@@ -42,12 +39,12 @@ import static org.mockito.Mockito.when;
 @SpringBootTest({
     "service.pdf-service.uri : http://localhost:8891/pdfs"
 })
-public class PdfGGenerationServiceConsumerTest {
+public class PdfGenerationServiceConsumerTest {
 
     private static final String SERVICE_AUTHORIZATION_HEADER = "ServiceAuthorization";
 
     @Autowired
-    DocmosisPDFGenerationServiceImpl docmosisPDFGenerationService;
+    DocmosisPdfGenerationServiceImpl docmosisPDFGenerationService;
 
     @Autowired
     ObjectMapper objectMapper;
@@ -57,9 +54,11 @@ public class PdfGGenerationServiceConsumerTest {
 
     @MockBean
     private TemplateManagementService templateManagementService;
+
     private final String someServiceAuthToken = "someServiceAuthToken";
     private final String template = "<html><body><div>Case number: {{ caseNo }}</div></body></html>";
-    private Map<String, Object> placeholders = Map.of("caseNo", "12345");
+    private PlaceholderData placeholders = PlaceholderData.builder()
+        .caseDetails(CaseDetails.builder().caseData(Map.of("caseNo", "12345")).build()).build();
 
     @BeforeEach
     public void setUpEachTest() throws InterruptedException, IOException {
@@ -94,30 +93,13 @@ public class PdfGGenerationServiceConsumerTest {
     @Test
     @PactTestFor(pactMethod = "generatePdfFromTemplate")
     public void verifyGeneratePdfFromTemplatePact() throws IOException, JSONException {
-        Map<String, Object> placeholders = new HashMap<>();
-        placeholders.put("caseNo", "12345");
-
         when(templateManagementService.getTemplateByName("someTemplateName")).thenReturn(template.getBytes());
         when(serviceTokenGenerator.generate()).thenReturn(someServiceAuthToken);
 
-        byte[] response = docmosisPDFGenerationService.generate("someTemplateName", placeholders);
-
-    }
-
-    private File getFile(String fileName) throws FileNotFoundException {
-        return ResourceUtils.getFile(this.getClass().getResource("/json/" + fileName));
+        docmosisPDFGenerationService.generate("someTemplateName", placeholders);
     }
 
     protected String createJsonObject(Object obj) throws JSONException, IOException {
         return objectMapper.writeValueAsString(obj);
     }
-
-    private GenerateDocumentRequest buildGenerateDocumentRequest() {
-        Map<String, Object> placeholders = new HashMap<>();
-        placeholders.put("caseNo", "12345");
-
-        return new GenerateDocumentRequest(template, placeholders);
-
-    }
-
 }

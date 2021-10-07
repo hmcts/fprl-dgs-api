@@ -7,9 +7,11 @@ import uk.gov.hmcts.reform.authorisation.ServiceAuthAutoConfiguration;
 
 @EnableFeignClients(basePackages = {"uk.gov.hmcts.reform.fprl"})
 @SpringBootApplication(
-    scanBasePackages = {"uk.gov.hmcts.reform.fprl",
+    scanBasePackages = {
+        "uk.gov.hmcts.reform.fprl",
         "uk.gov.hmcts.reform.logging.appinsights",
-        "uk.gov.hmcts.reform.ccd.document"},
+        "uk.gov.hmcts.reform.ccd.document"
+    },
     exclude = {ServiceAuthAutoConfiguration.class})
 public class DocumentGeneratorApplication {
 

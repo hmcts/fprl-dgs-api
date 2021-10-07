@@ -6,14 +6,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.util.PlaceholderDataProvider;
 
 import java.util.Collections;
-import java.util.Map;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_GENERATED_DOCUMENT;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_TEMPLATE_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentGenerateDownloadControllerTest {
@@ -26,23 +28,22 @@ public class DocumentGenerateDownloadControllerTest {
 
     @Test
     public void whenGenerateDocument_thenReturnProperResponse() {
-        final byte[] data = {1};
         final String someOtherKeyName = "someOtherKeyName";
         final String someOtherKeyValue = "someOtherKeyValue";
 
-        final Map<String, Object> placeHolders = Collections.singletonMap(someOtherKeyName, someOtherKeyValue);
-        final String templateName = "templateName";
+        PlaceholderData placeHolders = PlaceholderDataProvider
+            .withData(Collections.singletonMap(someOtherKeyName, someOtherKeyValue));
 
         GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(
-            templateName,
+            TEST_TEMPLATE_NAME,
             placeHolders
         );
 
-        when(documentManagementService.generateDocument(templateName, placeHolders)).thenReturn(data);
+        when(documentManagementService.generateDocument(TEST_TEMPLATE_NAME, placeHolders))
+            .thenReturn(TEST_GENERATED_DOCUMENT);
 
         classUnderTest.generatePdfBinary(generateDocumentRequest);
 
-        verify(documentManagementService, times(1))
-            .generateDocument(templateName, placeHolders);
+        verify(documentManagementService).generateDocument(TEST_TEMPLATE_NAME, placeHolders);
     }
 }

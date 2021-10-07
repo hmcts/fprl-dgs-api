@@ -6,15 +6,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
-
-import java.util.Collections;
-import java.util.Map;
+import uk.gov.hmcts.reform.fprl.documentgenerator.util.PlaceholderDataProvider;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_AUTH_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_TEMPLATE_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentGeneratorControllerUTest {
@@ -27,40 +28,35 @@ public class DocumentGeneratorControllerUTest {
 
     @Test
     public void whenGeneratePDF_thenReturnGeneratedPDFDocumentInfo() {
-        final String templateName = "templateName";
-        final Map<String, Object> placeholder = Collections.emptyMap();
-
+        PlaceholderData placeholder = PlaceholderDataProvider.empty();
         final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
-        when(documentManagementService.generateAndStoreDocument(templateName, placeholder, "testToken"))
+        when(documentManagementService.generateAndStoreDocument(TEST_TEMPLATE_NAME, placeholder, TEST_AUTH_TOKEN))
             .thenReturn(expected);
 
         GeneratedDocumentInfo actual = classUnderTest
-                .generateAndUploadPdf("testToken", new GenerateDocumentRequest(templateName, placeholder));
+            .generateAndUploadPdf(TEST_AUTH_TOKEN, new GenerateDocumentRequest(TEST_TEMPLATE_NAME, placeholder));
 
         assertEquals(expected, actual);
 
         verify(documentManagementService)
-            .generateAndStoreDocument(templateName, placeholder, "testToken");
+            .generateAndStoreDocument(TEST_TEMPLATE_NAME, placeholder, TEST_AUTH_TOKEN);
     }
 
     @Test
     public void whenGeneratePDF_thenReturnGeneratedDraftPDFDocumentInfo() {
-        final String templateName = "templateName";
-        final Map<String, Object> placeholder = Collections.emptyMap();
+        PlaceholderData placeholder = PlaceholderDataProvider.empty();
+        GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
-        final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
-
-        when(documentManagementService.generateAndStoreDraftDocument(templateName, placeholder, "testToken"))
+        when(documentManagementService.generateAndStoreDraftDocument(TEST_TEMPLATE_NAME, placeholder, TEST_AUTH_TOKEN))
             .thenReturn(expected);
 
         GeneratedDocumentInfo actual = classUnderTest
-                .generateAndUploadDraftPdf("testToken", new GenerateDocumentRequest(templateName, placeholder));
+            .generateAndUploadDraftPdf(TEST_AUTH_TOKEN, new GenerateDocumentRequest(TEST_TEMPLATE_NAME, placeholder));
 
         assertEquals(expected, actual);
 
         verify(documentManagementService)
-            .generateAndStoreDraftDocument(templateName, placeholder, "testToken");
+            .generateAndStoreDraftDocument(TEST_TEMPLATE_NAME, placeholder, TEST_AUTH_TOKEN);
     }
-
 }

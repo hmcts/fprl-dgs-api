@@ -17,5 +17,5 @@ public class GenerateDocumentRequest {
 
     @JsonProperty(value = "values", required = true)
     @ApiModelProperty(value = "Placeholder key / value pairs", required = true)
-    Map<String, Object> values;
+    PlaceholderData values;
 }

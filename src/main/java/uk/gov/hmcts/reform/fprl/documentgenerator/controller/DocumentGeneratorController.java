@@ -43,12 +43,13 @@ public class DocumentGeneratorController {
         @RequestHeader(value = "Authorization") String userAuthToken,
         @RequestBody @Valid GenerateDocumentRequest request) {
         log.info("Document generation [{}], placeholders map of size[{}]",
-            request.getTemplate(), request.getValues().size());
+            request.getTemplate(), request.getValues().getCaseDetails().getCaseData().size());
 
         return documentManagementService.generateAndStoreDocument(
             request.getTemplate(),
             request.getValues(),
-            userAuthToken);
+            userAuthToken
+        );
     }
 
     @ApiOperation(value = "Generate draft PDF document based on the supplied template name and placeholder texts and "
@@ -68,11 +69,12 @@ public class DocumentGeneratorController {
         @RequestHeader(value = "Authorization") String userAuthToken,
         @RequestBody @Valid GenerateDocumentRequest request) {
         log.info("Draft document generation [{}], placeholders map of size[{}]",
-            request.getTemplate(), request.getValues().size());
+            request.getTemplate(), request.getValues().getCaseDetails().getCaseData().size());
 
         return documentManagementService.generateAndStoreDraftDocument(
             request.getTemplate(),
             request.getValues(),
-            userAuthToken);
+            userAuthToken
+        );
     }
 }

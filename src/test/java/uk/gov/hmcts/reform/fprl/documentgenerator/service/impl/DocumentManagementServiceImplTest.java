@@ -12,14 +12,13 @@ import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.DocumentUploadRequest;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
+import uk.gov.hmcts.reform.fprl.documentgenerator.util.PlaceholderDataProvider;
 
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
 
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
@@ -27,18 +26,18 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_AUTH_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_DATE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_GENERATED_DOCUMENT;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_MIME_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_S2S_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_TEMPLATE_NAME;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_URL;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DocumentManagementServiceImplUTest {
+public class DocumentManagementServiceImplTest {
 
-    private static final String A_TEMPLATE = "a-certain-template";
-    private static final String A_TEMPLATE_FILE_NAME = "fileName.pdf";
-    private static final String TEST_AUTH_TOKEN = "someToken";
-    private static final byte[] TEST_GENERATED_DOCUMENT = new byte[]{1};
-    public static final String TEST_S2S_TOKEN = "s2s-token";
-    public static final String TEST_URL = "someUrl";
-    public static final String TEST_MIME_TYPE = "someMimeType";
-    public static final Date TEST_DATE = new Date();
+    public static final PlaceholderData empty = PlaceholderDataProvider.empty();
 
     @Mock
     private PDFGenerationService pdfGenerationService;
@@ -57,36 +56,36 @@ public class DocumentManagementServiceImplUTest {
 
     @Test
     public void generateAndStoreDocumentIsExecutedSuccessfully() {
-        when(pdfGenerationService.generate(eq(A_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
-        when(templatesConfiguration.getFileNameByTemplateName(A_TEMPLATE)).thenReturn(A_TEMPLATE_FILE_NAME);
+        when(pdfGenerationService.generate(eq(TEST_TEMPLATE_NAME), any())).thenReturn(TEST_GENERATED_DOCUMENT);
+        when(templatesConfiguration.getFileNameByTemplateName(TEST_TEMPLATE_NAME)).thenReturn(TEST_TEMPLATE_NAME);
         when(serviceAuthTokenGenerator.generate()).thenReturn(TEST_S2S_TOKEN);
         when(caseDocumentClientApi.uploadDocuments(eq(TEST_AUTH_TOKEN), eq(TEST_S2S_TOKEN), any(DocumentUploadRequest.class)))
             .thenReturn(buildUploadResponse());
 
-        GeneratedDocumentInfo generatedDocumentInfo = classUnderTest.generateAndStoreDocument(A_TEMPLATE, new HashMap<>(), TEST_AUTH_TOKEN);
+        GeneratedDocumentInfo generatedDocumentInfo = classUnderTest
+            .generateAndStoreDocument(TEST_TEMPLATE_NAME, empty, TEST_AUTH_TOKEN);
 
         assertGeneratedDocumentInfoIsAsExpected(generatedDocumentInfo);
     }
 
     @Test
     public void generateDocumentIsExecutedSuccessfully() {
-        when(pdfGenerationService.generate(eq(A_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
+        when(pdfGenerationService.generate(eq(TEST_TEMPLATE_NAME), any())).thenReturn(TEST_GENERATED_DOCUMENT);
 
-        byte[] generatedDocument = classUnderTest.generateDocument(A_TEMPLATE, new HashMap<>());
+        byte[] generatedDocument = classUnderTest.generateDocument(TEST_TEMPLATE_NAME, empty);
 
         assertThat(generatedDocument, equalTo(TEST_GENERATED_DOCUMENT));
-        verify(pdfGenerationService).generate(eq(A_TEMPLATE), eq(emptyMap()));
+        verify(pdfGenerationService).generate(eq(TEST_TEMPLATE_NAME), eq(empty));
     }
 
     @Test
     public void shouldThrowExceptionWhenTemplateNameIsInvalid() {
         String unknownTemplateName = "unknown-template";
-        HashMap<String, Object> placeholders = new HashMap<>();
         when(templatesConfiguration.getFileNameByTemplateName(unknownTemplateName))
             .thenThrow(new IllegalArgumentException("Unknown template: " + unknownTemplateName));
 
         IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
-            classUnderTest.generateAndStoreDocument(unknownTemplateName, placeholders, "some-auth-token");
+            classUnderTest.generateAndStoreDocument(unknownTemplateName, empty, TEST_AUTH_TOKEN);
         });
 
         assertThat(illegalArgumentException.getMessage(), equalTo("Unknown template: " + unknownTemplateName));

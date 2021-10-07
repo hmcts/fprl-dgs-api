@@ -35,6 +35,7 @@ public class TemplateDataMapper {
 
         // Get page assets
         data.putAll(getPageAssets());
+
         return data;
     }
 
@@ -45,34 +46,5 @@ public class TemplateDataMapper {
         pageAssets.put(docmosisBasePdfConfig.getHmctsImgKey(), docmosisBasePdfConfig.getHmctsImgVal());
 
         return pageAssets;
-    }
-
-    private String formatDateFromCCD(String ccdDateString) {
-        try {
-            ccdDateString = formatDateFromPattern(ccdDateString, CCD_DATE_FORMAT);
-        } catch (Exception e) {
-            throw new PDFGenerationException("Unable to format CCD Date Type field", e);
-        }
-        return ccdDateString;
-    }
-
-    private String formatDateTimeFromCCD(String ccdDateString) {
-        try {
-            ccdDateString = formatDateFromPattern(ccdDateString, CCD_DATE_TIME_FORMAT);
-        } catch (Exception e) {
-            throw new PDFGenerationException("Unable to format CCD DateTime Type field", e);
-        }
-        return ccdDateString;
-    }
-
-    private String formatDateFromPattern(String ccdDateString, String fromPattern) {
-        if (Objects.nonNull(ccdDateString)) {
-            DateTimeFormatter ccdFormatter = DateTimeFormatter.ofPattern(fromPattern);
-            LocalDate ccdDate = LocalDate.parse(ccdDateString, ccdFormatter);
-
-            DateTimeFormatter letterFormatter = DateTimeFormatter.ofPattern(LETTER_DATE_FORMAT);
-            ccdDateString = ccdDate.format(letterFormatter);
-        }
-        return ccdDateString;
     }
 }

@@ -22,7 +22,9 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.CaseDetails;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.GenerateDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 
 import java.text.DateFormat;
@@ -30,9 +32,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.junit.Assert.assertEquals;
@@ -41,6 +41,7 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_TEMPLATE_NAME;
 
 
 @RunWith(SpringRunner.class)
@@ -58,7 +59,6 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String NOT_ALLOWED_SERVICE = "test_service_not_allowed";
 
     private static final String TEST_DATE = "18/8/2021";
-    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
 
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
@@ -87,9 +87,9 @@ public class DocumentGenerateAndStoreE2ETest {
     @Test
     public void givenTemplateNameIsNull_whenGenerateAndStoreDocument_thenReturnHttp400() throws Exception {
         final String template = null;
-        final Map<String, Object> values = Collections.emptyMap();
+        PlaceholderData placeholderData = PlaceholderData.builder().build();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, placeholderData);
 
         webClient.perform(post(API_URL)
                 .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
@@ -101,9 +101,10 @@ public class DocumentGenerateAndStoreE2ETest {
     @Test
     public void givenTemplateNameIsBlank_whenGenerateAndStoreDocument_thenReturnHttp400() throws Exception {
         final String template = "  ";
-        final Map<String, Object> values = Collections.emptyMap();
+        PlaceholderData placeholderData = PlaceholderData.builder()
+            .caseDetails(CaseDetails.builder().caseData(Collections.emptyMap()).build()).build();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, placeholderData);
 
         webClient.perform(post(API_URL)
                 .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
@@ -115,9 +116,10 @@ public class DocumentGenerateAndStoreE2ETest {
     @Test
     public void givenTemplateNotFound_whenGenerateAndStoreDocument_thenReturnHttp400() throws Exception {
         final String template = "nonExistingTemplate";
-        final Map<String, Object> values = Collections.emptyMap();
+        PlaceholderData placeholderData = PlaceholderData.builder()
+            .caseDetails(CaseDetails.builder().caseData(Collections.emptyMap()).build()).build();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, values);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(template, placeholderData);
 
         webClient.perform(post(API_URL)
                 .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
@@ -128,13 +130,10 @@ public class DocumentGenerateAndStoreE2ETest {
 
     @Test
     public void givenCouldNotConnectToAuthService_whenGenerateAndStoreDocument_thenReturnHttp503() throws Exception {
-        Map<String, Object> caseData = new HashMap<>();
+        PlaceholderData placeholderData = PlaceholderData.builder()
+            .caseDetails(CaseDetails.builder().caseData(Collections.emptyMap()).build()).build();
 
-        Map<String, Object> requestData = Collections.singletonMap(
-            CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData)
-        );
-
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_TEMPLATE_NAME, placeholderData);
 
         mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
@@ -148,12 +147,10 @@ public class DocumentGenerateAndStoreE2ETest {
 
     @Test
     public void givenAuthServiceReturnAuthenticationError_whenGenerateAndStoreDocument_thenReturnHttp401() throws Exception {
-        Map<String, Object> caseData = new HashMap<>();
-        Map<String, Object> requestData = Collections.singletonMap(
-            CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData)
-        );
+        PlaceholderData placeholderData = PlaceholderData.builder()
+            .caseDetails(CaseDetails.builder().caseData(Collections.emptyMap()).build()).build();
 
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_EXAMPLE, requestData);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TEST_TEMPLATE_NAME, placeholderData);
 
         mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
         when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
@@ -168,14 +165,12 @@ public class DocumentGenerateAndStoreE2ETest {
     @Test
     public void givenAllGoesWellForTestExample_whenGenerateAndStoreDocument_thenReturn()
         throws Exception {
-        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(TEST_EXAMPLE);
+        assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(TEST_TEMPLATE_NAME);
     }
 
     private void assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(String templateId) throws Exception {
-        //Given
-        final Map<String, Object> caseData = Collections.emptyMap();
-        final Map<String, Object> values = new HashMap<>();
-        values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
+        final PlaceholderData placeholderData = PlaceholderData.builder()
+            .caseDetails(CaseDetails.builder().caseData(Collections.emptyMap()).build()).build();
 
         mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
 
@@ -186,7 +181,7 @@ public class DocumentGenerateAndStoreE2ETest {
         when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         //When
-        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(templateId, values);
+        final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(templateId, placeholderData);
         MvcResult result = webClient.perform(post(API_URL)
                 .content(ObjectMapperTestUtil.convertObjectToJsonString(generateDocumentRequest))
                 .contentType(MediaType.APPLICATION_JSON)

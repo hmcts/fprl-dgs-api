@@ -11,7 +11,9 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import uk.gov.hmcts.reform.fprl.documentgenerator.clients.DocmosisApiClient;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PdfDocumentRequest;
+import uk.gov.hmcts.reform.fprl.documentgenerator.domain.request.PlaceholderData;
 import uk.gov.hmcts.reform.fprl.documentgenerator.exception.PDFGenerationException;
 import uk.gov.hmcts.reform.fprl.documentgenerator.mapper.TemplateDataMapper;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
@@ -25,13 +27,9 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
+public class DocmosisPdfGenerationServiceImpl implements PDFGenerationService {
 
-    private final RestTemplate restTemplate;
-    private final TemplateDataMapper templateDataMapper;
-
-    @Value("${docmosis.service.pdf-service.uri}")
-    private String docmosisPdfServiceEndpoint;
+    private final DocmosisApiClient docmosisApiClient;
 
     @Value("${docmosis.service.pdf-service.accessKey}")
     private String docmosisPdfServiceAccessKey;
@@ -40,24 +38,16 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
     private String docmosisDevMode;
 
     @Override
-    public byte[] generate(String templateName, Map<String, Object> placeholders) {
+    public byte[] generate(String templateName, PlaceholderData placeholders) {
         checkArgument(!isNullOrEmpty(templateName), "document generation template cannot be empty");
         checkNotNull(placeholders, "placeholders map cannot be null");
 
-        log.info("Making request to pdf service to generate pdf document with template [{}]"
-            + " and placeholders of size [{}]", templateName, placeholders.size());
+        Map<String, Object> templateVars = placeholders.getCaseDetails().getCaseData();
+
+        log.info("Call docmosis with template [{}] and placeholders of size [{}]", templateName, templateVars.size());
 
         try {
-            // Remove this log when tested
-            log.info("Making Docmosis Request From {}", docmosisPdfServiceEndpoint);
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE);
-
-            HttpEntity<PdfDocumentRequest> httpEntity = new HttpEntity<>(request(templateName, placeholders), headers);
-
-            ResponseEntity<byte[]> response =
-                restTemplate.exchange(docmosisPdfServiceEndpoint, HttpMethod.POST, httpEntity, byte[].class);
+            ResponseEntity<byte[]> response = docmosisApiClient.generatePdf(request(templateName, templateVars));
 
             return response.getBody();
         } catch (Exception e) {
@@ -65,12 +55,12 @@ public class DocmosisPDFGenerationServiceImpl implements PDFGenerationService {
         }
     }
 
-    private PdfDocumentRequest request(String templateName, Map<String, Object> placeholders) {
+    private PdfDocumentRequest request(String templateName, Map<String, Object> templateVars) {
         return PdfDocumentRequest.builder()
             .accessKey(docmosisPdfServiceAccessKey)
             .templateName(templateName)
             .outputName("result.pdf")
             .devMode(docmosisDevMode)
-            .data(templateDataMapper.map(placeholders)).build();
+            .data(templateVars).build();
     }
 }
