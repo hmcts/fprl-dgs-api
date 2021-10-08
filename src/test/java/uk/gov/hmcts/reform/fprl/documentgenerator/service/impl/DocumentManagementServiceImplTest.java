@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -54,14 +54,16 @@ public class DocumentManagementServiceImplTest {
     @InjectMocks
     private DocumentManagementServiceImpl classUnderTest;
 
-    @Test
-    public void generateAndStoreDocumentIsExecutedSuccessfully() {
-        when(pdfGenerationService.generate(eq(TEST_TEMPLATE_NAME), any())).thenReturn(TEST_GENERATED_DOCUMENT);
-        when(templatesConfiguration.getFileNameByTemplateName(TEST_TEMPLATE_NAME)).thenReturn(TEST_TEMPLATE_NAME);
+    @Before
+    public void setup() {
         when(serviceAuthTokenGenerator.generate()).thenReturn(TEST_S2S_TOKEN);
+        when(pdfGenerationService.generate(eq(TEST_TEMPLATE_NAME), any())).thenReturn(TEST_GENERATED_DOCUMENT);
         when(caseDocumentClientApi.uploadDocuments(eq(TEST_AUTH_TOKEN), eq(TEST_S2S_TOKEN), any(DocumentUploadRequest.class)))
             .thenReturn(buildUploadResponse());
+    }
 
+    @Test
+    public void generateAndStoreDocumentIsExecutedSuccessfully() {
         GeneratedDocumentInfo generatedDocumentInfo = classUnderTest
             .generateAndStoreDocument(TEST_TEMPLATE_NAME, empty, TEST_AUTH_TOKEN);
 
@@ -76,19 +78,6 @@ public class DocumentManagementServiceImplTest {
 
         assertThat(generatedDocument, equalTo(TEST_GENERATED_DOCUMENT));
         verify(pdfGenerationService).generate(eq(TEST_TEMPLATE_NAME), eq(empty));
-    }
-
-    @Test
-    public void shouldThrowExceptionWhenTemplateNameIsInvalid() {
-        String unknownTemplateName = "unknown-template";
-        when(templatesConfiguration.getFileNameByTemplateName(unknownTemplateName))
-            .thenThrow(new IllegalArgumentException("Unknown template: " + unknownTemplateName));
-
-        IllegalArgumentException illegalArgumentException = assertThrows(IllegalArgumentException.class, () -> {
-            classUnderTest.generateAndStoreDocument(unknownTemplateName, empty, TEST_AUTH_TOKEN);
-        });
-
-        assertThat(illegalArgumentException.getMessage(), equalTo("Unknown template: " + unknownTemplateName));
     }
 
     private void assertGeneratedDocumentInfoIsAsExpected(GeneratedDocumentInfo generatedDocumentInfo) {

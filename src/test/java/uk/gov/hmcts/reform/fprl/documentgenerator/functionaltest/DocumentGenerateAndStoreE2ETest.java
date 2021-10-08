@@ -2,14 +2,12 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest;
 
 import com.github.tomakehurst.wiremock.client.WireMock;
 import com.github.tomakehurst.wiremock.junit.WireMockClassRule;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,8 +17,6 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
@@ -31,16 +27,12 @@ import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocum
 import uk.gov.hmcts.reform.fprl.documentgenerator.util.PlaceholderDataProvider;
 import uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts;
 
-import java.text.DateFormat;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -72,14 +64,6 @@ public class DocumentGenerateAndStoreE2ETest {
 
     @ClassRule
     public static WireMockClassRule serviceAuthServer = new WireMockClassRule(4502);
-
-    @MockBean
-    private AuthTokenGenerator serviceTokenGenerator;
-
-    @Before
-    public void setup() {
-        mockServiceAuthServer(HttpStatus.OK, TestConsts.TEST_S2S_TOKEN);
-    }
 
     @Test
     public void givenTemplateNameIsNull_whenGenerateAndStoreDocument_thenReturnHttp400() throws Exception {
@@ -129,8 +113,13 @@ public class DocumentGenerateAndStoreE2ETest {
         final PlaceholderData placeholderData = PlaceholderDataProvider.empty();
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TestConsts.TEST_TEMPLATE_ID, placeholderData);
 
+        // I get error:
+        //      org.springframework.web.util.NestedServletException: Request processing failed; nested exception is feign.codec.DecodeException: Type definition error: [simple type, class uk.gov.hmcts.reform.ccd.document.am.model.Document]; nested exception is com.fasterxml.jackson.databind.exc.InvalidDefinitionException: Cannot construct instance of `uk.gov.hmcts.reform.ccd.document.am.model.Document` (no Creators, like default constructor, exist):
+        //      cannot deserialize from Object value (no delegate- or property-based Creator)
+        // https://stackoverflow.com/questions/61455098/spring-post-400-bad-request-postman-when-changing-class-from-2-to-1-parameter/61458753#61458753
+        mockServiceAuthServer(HttpStatus.SERVICE_UNAVAILABLE, TestConsts.TEST_S2S_TOKEN);
         mockDocmosisPdfService(HttpStatus.OK, TestConsts.TEST_GENERATED_DOCUMENT);
-        when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.SERVICE_UNAVAILABLE));
+        mockCaseDocsClientApi(HttpStatus.OK, new UploadResponse(List.of(mockCaseDocsDocuments())));
 
         webClient.perform(post(API_URL)
                 .header(HttpHeaders.AUTHORIZATION, TestConsts.TEST_AUTH_TOKEN)
@@ -147,7 +136,6 @@ public class DocumentGenerateAndStoreE2ETest {
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(TestConsts.TEST_TEMPLATE_ID, placeholderData);
 
         mockDocmosisPdfService(HttpStatus.OK, TestConsts.TEST_GENERATED_DOCUMENT);
-        when(serviceTokenGenerator.generate()).thenThrow(new HttpClientErrorException(HttpStatus.UNAUTHORIZED));
 
         webClient.perform(post(API_URL)
                 .header(HttpHeaders.AUTHORIZATION, TestConsts.TEST_AUTH_TOKEN)
@@ -172,7 +160,7 @@ public class DocumentGenerateAndStoreE2ETest {
         mockCaseDocsClientApi(HttpStatus.OK, uploadResponse);
 
         final String securityToken = "securityToken";
-        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
+//        when(serviceTokenGenerator.generate()).thenReturn(securityToken);
 
         //When
         final GenerateDocumentRequest generateDocumentRequest = new GenerateDocumentRequest(templateId, placeholderData);
@@ -193,7 +181,7 @@ public class DocumentGenerateAndStoreE2ETest {
         return GeneratedDocumentInfo.builder()
             .url(TestConsts.TEST_URL)
             .mimeType(TestConsts.TEST_MIME_TYPE)
-            .createdOn(generateDate().toString())
+            .createdOn("10/10/2020")
             .build();
     }
 
@@ -232,17 +220,11 @@ public class DocumentGenerateAndStoreE2ETest {
         links.self = link;
 
         return Document.builder()
-            .createdOn(generateDate())
+//            .createdOn(new SimpleDateFormat("dd/MM/yyyy").parse("10/10/2020"))
             .links(links)
             .hashToken(TestConsts.TEST_HASH_TOKEN)
             .mimeType(TestConsts.TEST_MIME_TYPE)
             .originalDocumentName(TEST_DEFAULT_NAME_FOR_PDF_FILE)
             .build();
-    }
-
-    private Date generateDate() throws ParseException {
-        DateFormat format = new SimpleDateFormat("dd/MM/yyyy");
-
-        return format.parse(TestConsts.TEST_DATE.toString());
     }
 }

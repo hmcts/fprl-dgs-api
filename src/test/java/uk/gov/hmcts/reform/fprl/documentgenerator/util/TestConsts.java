@@ -15,6 +15,7 @@ public class TestConsts {
     public static final String TEST_URL = "someUrl";
     public static final String TEST_MIME_TYPE = "someMimeType";
     public static final String TEST_HASH_TOKEN = "hashToken";
+    public static final String TEST_FORMATTED_DATE = "";
 
     public static final byte[] TEST_GENERATED_DOCUMENT = new byte[]{1};
 
