@@ -18,7 +18,7 @@ import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_AU
 import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestConsts.TEST_TEMPLATE_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DocumentGeneratorControllerUTest {
+public class DocumentGeneratorControllerTest {
 
     @Mock
     private DocumentManagementService documentManagementService;

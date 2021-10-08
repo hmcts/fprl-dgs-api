@@ -12,7 +12,7 @@ import uk.gov.hmcts.reform.fprl.documentgenerator.exception.PDFGenerationExcepti
 import static org.junit.Assert.assertEquals;
 
 @RunWith(BlockJUnit4ClassRunner.class)
-public class GlobalExceptionHandlerUTest {
+public class GlobalExceptionHandlerTest {
 
     private final GlobalExceptionHandler classUnderTest = new GlobalExceptionHandler();
 

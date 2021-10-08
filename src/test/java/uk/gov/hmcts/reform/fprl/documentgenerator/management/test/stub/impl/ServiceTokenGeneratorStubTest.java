@@ -5,7 +5,7 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 
 import static org.junit.Assert.assertEquals;
 
-public class ServiceTokenGeneratorStubUTest {
+public class ServiceTokenGeneratorStubTest {
 
     private static final String DUMMY_SERVICE_TOKEN = "Dummy Token";
 

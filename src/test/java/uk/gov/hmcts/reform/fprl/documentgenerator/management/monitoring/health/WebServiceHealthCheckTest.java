@@ -23,13 +23,14 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
-public class WebServiceHealthCheckUTest {
+public class WebServiceHealthCheckTest {
     private static final String URI = "http://example.com";
     private final RestTemplate restTemplate = mock(RestTemplate.class);
     private final HttpEntityFactory httpEntityFactory = mock(HttpEntityFactory.class);
 
-    private final TestWebServiceHealthCheck healthCheck = new TestWebServiceHealthCheck(httpEntityFactory, restTemplate,
-            URI);
+    private final TestWebServiceHealthCheck healthCheck = new TestWebServiceHealthCheck(
+        httpEntityFactory, restTemplate, URI
+    );
 
     @Test
     public void givenServiceReturnsOk_whenHealth_thenReturnUp() {

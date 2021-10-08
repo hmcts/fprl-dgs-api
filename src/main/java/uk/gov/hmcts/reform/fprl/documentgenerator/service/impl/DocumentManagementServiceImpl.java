@@ -19,9 +19,6 @@ import java.time.Clock;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Map;
-
-import static java.util.Collections.emptyMap;
 
 @Service
 @Slf4j
@@ -31,7 +28,6 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     private static final String CURRENT_DATE_KEY = "current_date";
     private static final String DATE_FORMAT = "yyyy-MM-dd'T'hh:mm:ss.SSS";
 
-    private static final String DRAFT_PREFIX = "Draft";
     private static final String IS_DRAFT = "isDraft";
 
     private final Clock clock = Clock.systemDefaultZone();
@@ -46,8 +42,6 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         String templateName,
         PlaceholderData placeholders,
         String userAuthToken) {
-        String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
-
         return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken);
     }
 
@@ -56,8 +50,6 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         String templateName,
         PlaceholderData placeholders,
         String userAuthToken) {
-        String fileName = templatesConfiguration.getFileNameByTemplateName(templateName);
-
         placeholders.getCaseDetails().getCaseData().put(IS_DRAFT, true);
 
         return getGeneratedDocumentInfo(templateName, placeholders, userAuthToken);

@@ -20,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(DocumentDownloadTestController.class)
 @TestPropertySource(properties = {
         "evidence-management-api.service.stub.enabled=true"})
-public class DocumentDownloadTestControllerUTest {
+public class DocumentDownloadTestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
