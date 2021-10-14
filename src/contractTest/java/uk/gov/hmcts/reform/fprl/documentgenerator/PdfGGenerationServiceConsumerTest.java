@@ -70,13 +70,13 @@ public class PdfGGenerationServiceConsumerTest {
         Executor.closeIdleConnections();
     }
 
-    @Pact(provider = "rpePdfService_PDFGenerationEndpointV2", consumer = "divorce_documentGeneratorClient")
+    @Pact(provider = "rpePdfService_PDFGenerationEndpointV2", consumer = "fprl_documentGeneratorClient")
     RequestResponsePact generatePdfFromTemplate(PactDslWithProvider builder) throws JSONException, IOException {
         // @formatter:off
 
         return builder
-            .given("A request to generate a divorce pdf document")
-            .uponReceiving("a request to generate a divorce pdf document with a template")
+            .given("A request to generate a pdf document")
+            .uponReceiving("a request to generate a pdf document with a template")
             .method("POST")
             .headers(SERVICE_AUTHORIZATION_HEADER, someServiceAuthToken)
             .body(createJsonObject(new GenerateDocumentRequest(template, placeholders)),
