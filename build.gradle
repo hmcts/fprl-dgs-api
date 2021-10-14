@@ -169,7 +169,7 @@ def versions = [
     pact_version: '4.1.11',
     httpComponents: '4.5.13',
     bouncycastle: '1.61',
-    ccdCaseDocumentAmClient: '1.7.1'
+    ccdCaseDocumentAmClient: '1.7.2'
 ]
 
 dependencies {

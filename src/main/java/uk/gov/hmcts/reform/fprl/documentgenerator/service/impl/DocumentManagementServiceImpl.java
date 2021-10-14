@@ -3,16 +3,18 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
+import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
+import uk.gov.hmcts.reform.ccd.document.am.util.InMemoryMultipartFile;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
-import uk.gov.hmcts.reform.fprl.documentgenerator.mapper.GeneratedDocumentInfoMapper;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.EvidenceManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.text.SimpleDateFormat;
 import java.time.Clock;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
@@ -33,7 +35,7 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     private final Clock clock = Clock.systemDefaultZone();
 
     private final PDFGenerationFactory pdfGenerationFactory;
-    private final EvidenceManagementService evidenceManagementService;
+    private final CaseDocumentClient caseDocumentClient;
     private final TemplatesConfiguration templatesConfiguration;
 
     @Override
@@ -81,9 +83,19 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     @Override
     public GeneratedDocumentInfo storeDocument(byte[] document, String authorizationToken, String fileName) {
         log.debug("Store document requested with document of size [{}]", document.length);
-        return GeneratedDocumentInfoMapper.mapToGeneratedDocumentInfo(
-            evidenceManagementService.storeDocumentAndGetInfo(document, authorizationToken, fileName)
+
+        UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
+            authorizationToken,
+            "s2s token",
+            "C100",
+            "PRIVATELAW",
+            Arrays.asList(new InMemoryMultipartFile("aaa", document))
         );
+
+        return new GeneratedDocumentInfo();
+        //return GeneratedDocumentInfoMapper.mapToGeneratedDocumentInfo(
+        //evidenceManagementService.storeDocumentAndGetInfo(document, authorizationToken, fileName)
+        //)`;
     }
 
     @Override
