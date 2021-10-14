@@ -3,7 +3,7 @@ variable "reform_service_name" {
 }
 
 variable "reform_team" {
-  default = "div"
+  default = "fprl"
 }
 
 variable "capacity" {
@@ -21,7 +21,7 @@ variable "env" {}
 variable "product" {}
 
 variable "raw_product" {
-  default = "div"
+  default = "fprl"
 }
 
 variable "tenant_id" {}
@@ -40,23 +40,11 @@ variable "idam_s2s_url_prefix" {
 }
 
 variable "auth_provider_service_client_microservice" {
-  default = "divorce_document_generator"
+  default = "fprl_dgs_api"
 }
 
 variable "auth_provider_service_client_tokentimetoliveinseconds" {
   default = "900"
-}
-
-variable "pdf_service_url_part" {
-  default = "cmc-pdf-service"
-}
-
-variable "evidence_management_client_api_url_part" {
-  default = "div-emca"
-}
-
-variable "evidence_management_client_api_health_endpoint" {
-  default = "/health"
 }
 
 variable "subscription" {}
