@@ -69,11 +69,6 @@ document:
         displayTemplateKey: "displayTemplateOnly"
         displayTemplateVal: "1"
 
-service-auth-provider:
-    service:
-        stub:
-            enabled: false
-
 evidence-management-api:
     service:
         stub:
