@@ -10,7 +10,6 @@ import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.ccd.document.am.util.InMemoryMultipartFile;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
@@ -36,7 +35,7 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
 
     private final Clock clock = Clock.systemDefaultZone();
 
-    private final PDFGenerationFactory pdfGenerationFactory;
+    private final PDFGenerationService generatorService;
     private final CaseDocumentClient caseDocumentClient;
     private final AuthTokenGenerator authTokenGenerator;
     private final TemplatesConfiguration templatesConfiguration;
@@ -111,7 +110,6 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         log.debug("Generate document requested with templateName [{}], placeholders of size[{}]",
             templateName, placeholders.size());
 
-        PDFGenerationService generatorService = pdfGenerationFactory.getGeneratorService(templateName);
         return generatorService.generate(templateName, placeholders);
     }
 
@@ -119,5 +117,4 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
         Map<String, Object> caseDetails = (Map<String, Object>) placeholders.getOrDefault("caseDetails", emptyMap());
         return (String) caseDetails.get("id");
     }
-
 }

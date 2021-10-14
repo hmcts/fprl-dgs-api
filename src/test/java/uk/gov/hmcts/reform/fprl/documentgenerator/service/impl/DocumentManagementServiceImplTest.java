@@ -11,7 +11,6 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
-import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.util.HashMap;
@@ -35,9 +34,6 @@ public class DocumentManagementServiceImplTest {
     private static final String D8_PETITION_WELSH_TEMPLATE = "FL-DIV-GNO-WEL-00256.docx";
 
     private static final String DRAFT_MINI_PETITION_TEMPLATE_ID = "divorcedraftminipetition";
-
-    @Mock
-    private PDFGenerationFactory pdfGenerationFactory;
 
     @Mock
     private PDFGenerationService pdfGenerationService;
@@ -66,7 +62,6 @@ public class DocumentManagementServiceImplTest {
     @Test
     public void testGenerateAndStoreDraftDocumentMock() {
         when(authTokenGenerator.generate()).thenReturn(s2sToken);
-        when(pdfGenerationFactory.getGeneratorService(D8_PETITION_WELSH_TEMPLATE)).thenReturn(pdfGenerationService);
         when(pdfGenerationService.generate(D8_PETITION_WELSH_TEMPLATE, placeholderMap)).thenReturn(data);
         when(templatesConfiguration.getFileNameByTemplateName(D8_PETITION_WELSH_TEMPLATE)).thenReturn(MINI_PETITION_NAME_FOR_WELSH_PDF_FILE);
         when(caseDocumentClient.uploadDocuments(eq(authToken), eq(s2sToken), eq("C100"), eq("PRIVATELAW"), any()))
@@ -82,8 +77,6 @@ public class DocumentManagementServiceImplTest {
     @Test
     public void testGenerateAndStoreDraftDocument_WithDraftPrefixMock() {
         when(authTokenGenerator.generate()).thenReturn(s2sToken);
-        when(pdfGenerationFactory.getGeneratorService(DRAFT_MINI_PETITION_TEMPLATE_ID))
-            .thenReturn(pdfGenerationService);
         when(pdfGenerationService.generate(DRAFT_MINI_PETITION_TEMPLATE_ID, placeholderMap)).thenReturn(data);
         when(templatesConfiguration.getFileNameByTemplateName(DRAFT_MINI_PETITION_TEMPLATE_ID)).thenReturn(DRAFT_MINI_PETITION_NAME_FOR_PDF_FILE);
         when(caseDocumentClient.uploadDocuments(eq(authToken), eq(s2sToken), eq("C100"), eq("PRIVATELAW"), any()))

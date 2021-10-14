@@ -11,19 +11,16 @@ import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
-import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.util.HashMap;
 
 import static java.util.Arrays.asList;
-import static java.util.Collections.emptyMap;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.mockCaseDocsDocuments;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.CASE_TYPE;
@@ -39,9 +36,6 @@ import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_TEMP
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentManagementServiceImplUTest {
-
-    @Mock
-    private PDFGenerationFactory pdfGenerationFactory;
 
     @Mock
     private PDFGenerationService pdfGenerationService;
@@ -68,7 +62,6 @@ public class DocumentManagementServiceImplUTest {
 
     @Test
     public void givenTemplateNameIsAosInvitation_whenGenerateAndStoreDocument_thenProceedAsExpected() {
-        when(pdfGenerationFactory.getGeneratorService(TEST_TEMPLATE)).thenReturn(pdfGenerationService);
         when(pdfGenerationService.generate(eq(TEST_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
         when(templatesConfiguration.getFileNameByTemplateName(TEST_TEMPLATE)).thenReturn(TEST_TEMPLATE_FILE_NAME);
         when(caseDocumentClient.uploadDocuments(
@@ -79,18 +72,6 @@ public class DocumentManagementServiceImplUTest {
             .generateAndStoreDocument(TEST_TEMPLATE, new HashMap<>(), TEST_AUTH_TOKEN);
 
         assertGeneratedDocumentInfoIsAsExpected(generatedDocumentInfo);
-    }
-
-    @Test
-    public void givenPdfGeneratorIsUsed_whenGenerateDocumentWithHtmlCharacters_thenEscapeHtmlCharacters() {
-        when(pdfGenerationFactory.getGeneratorService(TEST_TEMPLATE)).thenReturn(pdfGenerationService);
-        when(pdfGenerationService.generate(eq(TEST_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
-
-        byte[] generatedDocument = classUnderTest.generateDocument(TEST_TEMPLATE, new HashMap<>());
-
-        assertThat(generatedDocument, equalTo(TEST_GENERATED_DOCUMENT));
-        verify(pdfGenerationFactory).getGeneratorService(TEST_TEMPLATE);
-        verify(pdfGenerationService).generate(eq(TEST_TEMPLATE), eq(emptyMap()));
     }
 
     @Test
