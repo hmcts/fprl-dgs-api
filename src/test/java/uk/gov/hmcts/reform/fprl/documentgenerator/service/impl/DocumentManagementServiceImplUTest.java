@@ -6,15 +6,12 @@ import org.junit.runner.RunWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.http.HttpStatus;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
-import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
-import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.FileUploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocumentInfo;
 import uk.gov.hmcts.reform.fprl.documentgenerator.factory.PDFGenerationFactory;
-import uk.gov.hmcts.reform.fprl.documentgenerator.service.EvidenceManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
 import java.util.HashMap;
@@ -28,6 +25,10 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.FILE_URL;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.MIME_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.TEST_HASH_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.mockCaseDocsDocuments;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentManagementServiceImplUTest {
@@ -36,8 +37,7 @@ public class DocumentManagementServiceImplUTest {
     private static final String A_TEMPLATE_FILE_NAME = "fileName.pdf";
     private static final String TEST_AUTH_TOKEN = "someToken";
     private static final byte[] TEST_GENERATED_DOCUMENT = new byte[] {1};
-
-    private FileUploadResponse expectedFileUploadResponse;
+    public static final String S2S_TOKEN = "s2s authenticated";
 
     private UploadResponse expectedUploadResponse;
 
@@ -53,16 +53,16 @@ public class DocumentManagementServiceImplUTest {
     @Mock
     private TemplatesConfiguration templatesConfiguration;
 
+    @Mock
+    private AuthTokenGenerator authTokenGenerator;
+
     @InjectMocks
     private DocumentManagementServiceImpl classUnderTest;
 
     @Before
     public void setUp() {
-        expectedUploadResponse = new UploadResponse(asList(Document.builder().build()));
-//        expectedFileUploadResponse = new Up(HttpStatus.OK);
-//        expectedFileUploadResponse.setFileUrl("someUrl");
-//        expectedFileUploadResponse.setMimeType("someMimeType");
-//        expectedFileUploadResponse.setCreatedOn("someCreatedDate");
+        expectedUploadResponse = new UploadResponse(asList(mockCaseDocsDocuments()));
+        when(authTokenGenerator.generate()).thenReturn(S2S_TOKEN);
     }
 
     @Test
@@ -71,14 +71,13 @@ public class DocumentManagementServiceImplUTest {
         when(pdfGenerationService.generate(eq(A_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
         when(templatesConfiguration.getFileNameByTemplateName(A_TEMPLATE)).thenReturn(A_TEMPLATE_FILE_NAME);
         when(caseDocumentClient.uploadDocuments(
-            eq(TEST_AUTH_TOKEN), eq("s2s token"), eq("C100"), eq("PRIVATELAW"), any()
+            eq(TEST_AUTH_TOKEN), eq(S2S_TOKEN), eq("C100"), eq("PRIVATELAW"), any()
         )).thenReturn(expectedUploadResponse);
 
         GeneratedDocumentInfo generatedDocumentInfo = classUnderTest
             .generateAndStoreDocument(A_TEMPLATE, new HashMap<>(), TEST_AUTH_TOKEN);
 
         assertGeneratedDocumentInfoIsAsExpected(generatedDocumentInfo);
-//        verify(evidenceManagementService).storeDocumentAndGetInfo(eq(TEST_GENERATED_DOCUMENT), eq(TEST_AUTH_TOKEN), eq(A_TEMPLATE_FILE_NAME));
     }
 
     @Test
@@ -92,17 +91,6 @@ public class DocumentManagementServiceImplUTest {
         verify(pdfGenerationFactory).getGeneratorService(A_TEMPLATE);
         verify(pdfGenerationService).generate(eq(A_TEMPLATE), eq(emptyMap()));
     }
-
-//    @Test
-//    public void whenStoreDocument_thenProceedAsExpected() {
-//        when(evidenceManagementService.storeDocumentAndGetInfo(TEST_GENERATED_DOCUMENT, TEST_AUTH_TOKEN, A_TEMPLATE_FILE_NAME))
-//            .thenReturn(expectedFileUploadResponse);
-//
-//        GeneratedDocumentInfo generatedDocumentInfo = classUnderTest.storeDocument(TEST_GENERATED_DOCUMENT, TEST_AUTH_TOKEN, A_TEMPLATE_FILE_NAME);
-//
-//        assertGeneratedDocumentInfoIsAsExpected(generatedDocumentInfo);
-//        verify(evidenceManagementService).storeDocumentAndGetInfo(TEST_GENERATED_DOCUMENT, TEST_AUTH_TOKEN, A_TEMPLATE_FILE_NAME);
-//    }
 
     @Test
     public void givenTemplateNameIsInvalid_whenGenerateAndStoreDocument_thenThrowException() {
@@ -119,9 +107,8 @@ public class DocumentManagementServiceImplUTest {
     }
 
     private void assertGeneratedDocumentInfoIsAsExpected(GeneratedDocumentInfo generatedDocumentInfo) {
-//        assertThat(generatedDocumentInfo.getUrl(), equalTo("someUrl"));
-//        assertThat(generatedDocumentInfo.getMimeType(), equalTo("someMimeType"));
-//        assertThat(generatedDocumentInfo.getCreatedOn(), equalTo("someCreatedDate"));
+        assertThat(generatedDocumentInfo.getUrl(), equalTo(FILE_URL));
+        assertThat(generatedDocumentInfo.getMimeType(), equalTo(MIME_TYPE));
+        assertThat(generatedDocumentInfo.getHashToken(), equalTo(TEST_HASH_TOKEN));
     }
-
 }

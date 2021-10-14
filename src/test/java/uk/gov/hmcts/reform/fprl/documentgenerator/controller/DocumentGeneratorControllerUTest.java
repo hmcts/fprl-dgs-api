@@ -31,7 +31,7 @@ public class DocumentGeneratorControllerUTest {
         final String templateName = "templateName";
         final Map<String, Object> placeholder = Collections.emptyMap();
 
-        final GeneratedDocumentInfo expected = new GeneratedDocumentInfo();
+        final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
         when(documentManagementService.generateAndStoreDocument(templateName, placeholder, "testToken"))
             .thenReturn(expected);
@@ -50,7 +50,7 @@ public class DocumentGeneratorControllerUTest {
         final String templateName = "templateName";
         final Map<String, Object> placeholder = Collections.emptyMap();
 
-        final GeneratedDocumentInfo expected = new GeneratedDocumentInfo();
+        final GeneratedDocumentInfo expected = GeneratedDocumentInfo.builder().build();
 
         when(documentManagementService.generateAndStoreDraftDocument(templateName, placeholder, "testToken"))
             .thenReturn(expected);

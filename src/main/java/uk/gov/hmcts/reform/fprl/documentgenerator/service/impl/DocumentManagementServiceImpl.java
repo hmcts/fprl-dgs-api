@@ -3,7 +3,9 @@ package uk.gov.hmcts.reform.fprl.documentgenerator.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import uk.gov.hmcts.reform.ccd.document.am.feign.CaseDocumentClient;
+import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.ccd.document.am.util.InMemoryMultipartFile;
 import uk.gov.hmcts.reform.fprl.documentgenerator.config.TemplatesConfiguration;
@@ -36,6 +38,7 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
 
     private final PDFGenerationFactory pdfGenerationFactory;
     private final CaseDocumentClient caseDocumentClient;
+    private final AuthTokenGenerator authTokenGenerator;
     private final TemplatesConfiguration templatesConfiguration;
 
     @Override
@@ -84,18 +87,23 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
     public GeneratedDocumentInfo storeDocument(byte[] document, String authorizationToken, String fileName) {
         log.debug("Store document requested with document of size [{}]", document.length);
 
+        String serviceAuthToken = authTokenGenerator.generate();
+
         UploadResponse uploadResponse = caseDocumentClient.uploadDocuments(
             authorizationToken,
-            "s2s token",
+            serviceAuthToken,
             "C100",
             "PRIVATELAW",
             Arrays.asList(new InMemoryMultipartFile("aaa", document))
         );
 
-        return new GeneratedDocumentInfo();
-        //return GeneratedDocumentInfoMapper.mapToGeneratedDocumentInfo(
-        //evidenceManagementService.storeDocumentAndGetInfo(document, authorizationToken, fileName)
-        //)`;
+        Document uploadedDocument = uploadResponse.getDocuments().get(0);
+
+        return GeneratedDocumentInfo.builder()
+            .url(uploadedDocument.links.self.href)
+            .mimeType(uploadedDocument.mimeType)
+            .hashToken(uploadedDocument.hashToken)
+            .build();
     }
 
     @Override

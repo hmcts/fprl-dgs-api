@@ -1,5 +1,6 @@
 package uk.gov.hmcts.reform.fprl.documentgenerator.controller.helper;
 
+import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -42,4 +43,19 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
     }
+
+    @ExceptionHandler({FeignException.ServiceUnavailable.class})
+    public ResponseEntity<Object> handleFeignExceptionServiceUnavailableException(Exception exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).body(exception.getMessage());
+    }
+
+    @ExceptionHandler({FeignException.Unauthorized.class})
+    public ResponseEntity<Object> handleFeignExceptionUnauthorizedException(Exception exception) {
+        log.error(exception.getMessage(), exception);
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(exception.getMessage());
+    }
+
 }
