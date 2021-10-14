@@ -22,9 +22,6 @@ import static uk.gov.hmcts.reform.fprl.documentgenerator.domain.TemplateConstant
 public class TemplateDataMapper {
 
     @Autowired
-    private ObjectMapper mapper;
-
-    @Autowired
     private DocmosisBasePdfConfig docmosisBasePdfConfig;
 
     @SuppressWarnings("unchecked")

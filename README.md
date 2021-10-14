@@ -7,7 +7,7 @@
 
 This is a document generation and template management service. This allows to generate documents based on a
 given template name and placeholder data in JSON format and will also store the generated document in the
-Evidence Management Store.
+Document Management Store (via Case Document AM).
 
 The service provides a single RESTful endpoint that will generate the document, store it in Evidence Management
 Store and return the link to the stored data.
