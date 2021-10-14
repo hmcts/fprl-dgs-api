@@ -25,21 +25,20 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.FILE_URL;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.MIME_TYPE;
-import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.TEST_HASH_TOKEN;
 import static uk.gov.hmcts.reform.fprl.documentgenerator.functionaltest.DocumentGenerateAndStoreE2ETest.mockCaseDocsDocuments;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.CASE_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.FILE_URL;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.JURISDICTION;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.MIME_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_AUTH_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_GENERATED_DOCUMENT;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_HASH_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_S2S_TOKEN;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_TEMPLATE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_TEMPLATE_FILE_NAME;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DocumentManagementServiceImplUTest {
-
-    private static final String A_TEMPLATE = "a-certain-template";
-    private static final String A_TEMPLATE_FILE_NAME = "fileName.pdf";
-    private static final String TEST_AUTH_TOKEN = "someToken";
-    private static final byte[] TEST_GENERATED_DOCUMENT = new byte[] {1};
-    public static final String S2S_TOKEN = "s2s authenticated";
-
-    private UploadResponse expectedUploadResponse;
 
     @Mock
     private PDFGenerationFactory pdfGenerationFactory;
@@ -59,37 +58,39 @@ public class DocumentManagementServiceImplUTest {
     @InjectMocks
     private DocumentManagementServiceImpl classUnderTest;
 
+    private UploadResponse expectedUploadResponse;
+
     @Before
     public void setUp() {
         expectedUploadResponse = new UploadResponse(asList(mockCaseDocsDocuments()));
-        when(authTokenGenerator.generate()).thenReturn(S2S_TOKEN);
+        when(authTokenGenerator.generate()).thenReturn(TEST_S2S_TOKEN);
     }
 
     @Test
     public void givenTemplateNameIsAosInvitation_whenGenerateAndStoreDocument_thenProceedAsExpected() {
-        when(pdfGenerationFactory.getGeneratorService(A_TEMPLATE)).thenReturn(pdfGenerationService);
-        when(pdfGenerationService.generate(eq(A_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
-        when(templatesConfiguration.getFileNameByTemplateName(A_TEMPLATE)).thenReturn(A_TEMPLATE_FILE_NAME);
+        when(pdfGenerationFactory.getGeneratorService(TEST_TEMPLATE)).thenReturn(pdfGenerationService);
+        when(pdfGenerationService.generate(eq(TEST_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
+        when(templatesConfiguration.getFileNameByTemplateName(TEST_TEMPLATE)).thenReturn(TEST_TEMPLATE_FILE_NAME);
         when(caseDocumentClient.uploadDocuments(
-            eq(TEST_AUTH_TOKEN), eq(S2S_TOKEN), eq("C100"), eq("PRIVATELAW"), any()
+            eq(TEST_AUTH_TOKEN), eq(TEST_S2S_TOKEN), eq(CASE_TYPE), eq(JURISDICTION), any()
         )).thenReturn(expectedUploadResponse);
 
         GeneratedDocumentInfo generatedDocumentInfo = classUnderTest
-            .generateAndStoreDocument(A_TEMPLATE, new HashMap<>(), TEST_AUTH_TOKEN);
+            .generateAndStoreDocument(TEST_TEMPLATE, new HashMap<>(), TEST_AUTH_TOKEN);
 
         assertGeneratedDocumentInfoIsAsExpected(generatedDocumentInfo);
     }
 
     @Test
     public void givenPdfGeneratorIsUsed_whenGenerateDocumentWithHtmlCharacters_thenEscapeHtmlCharacters() {
-        when(pdfGenerationFactory.getGeneratorService(A_TEMPLATE)).thenReturn(pdfGenerationService);
-        when(pdfGenerationService.generate(eq(A_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
+        when(pdfGenerationFactory.getGeneratorService(TEST_TEMPLATE)).thenReturn(pdfGenerationService);
+        when(pdfGenerationService.generate(eq(TEST_TEMPLATE), any())).thenReturn(TEST_GENERATED_DOCUMENT);
 
-        byte[] generatedDocument = classUnderTest.generateDocument(A_TEMPLATE, new HashMap<>());
+        byte[] generatedDocument = classUnderTest.generateDocument(TEST_TEMPLATE, new HashMap<>());
 
         assertThat(generatedDocument, equalTo(TEST_GENERATED_DOCUMENT));
-        verify(pdfGenerationFactory).getGeneratorService(A_TEMPLATE);
-        verify(pdfGenerationService).generate(eq(A_TEMPLATE), eq(emptyMap()));
+        verify(pdfGenerationFactory).getGeneratorService(TEST_TEMPLATE);
+        verify(pdfGenerationService).generate(eq(TEST_TEMPLATE), eq(emptyMap()));
     }
 
     @Test

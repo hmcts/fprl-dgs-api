@@ -32,6 +32,10 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.FILE_URL;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.MIME_TYPE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_DEFAULT_NAME_FOR_PDF_FILE;
+import static uk.gov.hmcts.reform.fprl.documentgenerator.util.TestData.TEST_HASH_TOKEN;
 
 @RunWith(SpringRunner.class)
 @ContextConfiguration(classes = DocumentGeneratorApplication.class)
@@ -48,13 +52,6 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String CASE_DATA = "case_data";
 
     private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
-
-    public static final String FILE_URL = "fileURL";
-    public static final String MIME_TYPE = "mimeType";
-    public static final String TEST_DEFAULT_NAME_FOR_PDF_FILE = "FPRLDocument.pdf";
-
-    public static final String TEST_HASH_TOKEN = "hashToken";
-
 
     @Autowired
     private MockMvc webClient;
