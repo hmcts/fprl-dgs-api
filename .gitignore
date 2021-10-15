@@ -1,22 +1,25 @@
-.gradle
-/build/
-!gradle/wrapper/gradle-wrapper.jar
-*.class
-bin/main/application.yaml
-
-### STS ###
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-
-### IntelliJ IDEA ###
-.idea
-/out
-*.iws
-*.iml
+build
+classes
+out
 *.ipr
+*.iml
+*.iws
 
+.idea
+.checkstyle
+.classpath
 .DS_Store
+.gradle
+.gradletasknamecache
+.project
+.settings/
+.vscode/
+
+bin/
+target/
+
+src/main/resources/version
+java-rpm-packaging/
+application-*.yml
+application-*.yaml
+application-local.properties

@@ -1,0 +1,3 @@
+FPRL Document Generator
+
+${Ansi.RED} :: ${application.version} :: ${Ansi.DEFAULT}
