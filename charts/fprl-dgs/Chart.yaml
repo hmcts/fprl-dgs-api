@@ -5,5 +5,5 @@ name: fprl-dgs
 version: 0.0.1
 dependencies:
     - name: java
-      version: ~3.4.5
+      version: ~3.6.0
       repository: "@hmctspublic"
