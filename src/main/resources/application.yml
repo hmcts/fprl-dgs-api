@@ -112,7 +112,7 @@ management:
                 include: info, health, metrics
     health:
       case-document-am-api:
-          enabled: false
+          enabled: true
 
 logging:
     level:
