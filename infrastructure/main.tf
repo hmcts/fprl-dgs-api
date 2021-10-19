@@ -27,11 +27,6 @@ data "azurerm_key_vault" "fprl_key_vault" {
     resource_group_name = local.vaultName
 }
 
-data "azurerm_key_vault_secret" "fprl-doc-s2s-auth-secret" {
-    name      = "fprl-doc-s2s-auth-secret"
-    key_vault_id = data.azurerm_key_vault.fprl_key_vault.id
-}
-
 data "azurerm_key_vault_secret" "idam-secret" {
     name      = "idam-secret"
     key_vault_id = data.azurerm_key_vault.fprl_key_vault.id
