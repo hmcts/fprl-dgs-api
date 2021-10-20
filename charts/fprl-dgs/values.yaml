@@ -11,7 +11,6 @@ java:
         REFORM_TEAM: "fprl"
         AUTH_PROVIDER_SERVICE_CLIENT_MICROSERVICE: "fprl_dgs_api"
         AUTH_PROVIDER_SERVICE_CLIENT_TOKENTIMETOLIVEINSECONDS: "900"
-        CCD_CASE_DOCS_AM_API_HEALTH_ENDPOINT: "/health"
     keyVaults:
         "fprl":
             resourceGroup: fprl

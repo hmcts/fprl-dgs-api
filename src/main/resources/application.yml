@@ -18,7 +18,6 @@ docmosis:
 
 case_document_am:
     url: ${CCD_CASE_DOCS_AM_API:http://localhost:5170}
-    health: ${CCD_CASE_DOCS_AM_API:http://localhost:5170}/health
 
 auth:
     provider:
