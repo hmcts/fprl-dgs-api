@@ -13,6 +13,9 @@ import uk.gov.hmcts.reform.fprl.documentgenerator.domain.response.GeneratedDocum
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.DocumentManagementService;
 import uk.gov.hmcts.reform.fprl.documentgenerator.service.PDFGenerationService;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.Clock;
 import java.util.Arrays;
@@ -21,6 +24,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static java.util.Collections.emptyMap;
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
 
 @Service
 @Slf4j
@@ -93,7 +97,8 @@ public class DocumentManagementServiceImpl implements DocumentManagementService 
             serviceAuthToken,
             "C100",
             "PRIVATELAW",
-            Arrays.asList(new InMemoryMultipartFile("aaa", document))
+            Arrays.asList( new InMemoryMultipartFile("files", fileName, APPLICATION_PDF_VALUE, document
+            ))
         );
 
         Document uploadedDocument = uploadResponse.getDocuments().get(0);
