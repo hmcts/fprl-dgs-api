@@ -5,6 +5,6 @@ spring:
       prefixed: true
       paths: /mnt/secrets/div
       aliases:
-        fprl.microservicekey-fprl-dgs-api: AUTH_PROVIDER_SERVICE_CLIENT_KEY
-        fprl.docmosis-api-key: DOCMOSIS_SERVICE_ACCESS_KEY
-        fprl.AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key
+        prl.microservicekey-prl-dgs-api: AUTH_PROVIDER_SERVICE_CLIENT_KEY
+        prl.docmosis-api-key: DOCMOSIS_SERVICE_ACCESS_KEY
+        prl.AppInsightsInstrumentationKey: azure.application-insights.instrumentation-key

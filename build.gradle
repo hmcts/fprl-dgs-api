@@ -29,7 +29,7 @@ plugins {
 
 apply plugin: 'net.serenity-bdd.aggregator'
 
-group = 'uk.gov.hmcts.reform.fprl'
+group = 'uk.gov.hmcts.reform.prl'
 version = '3.0.0'
 sourceCompatibility = 11
 targetCompatibility = 11
@@ -67,10 +67,10 @@ bootJar {
         attributes 'Implementation-Title': project.name,
             'Implementation-Version': project.version
     }
-    archiveName 'fprl-dgs-api.jar'
+    archiveName 'prl-dgs-api.jar'
 }
 
-mainClassName = 'uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication'
+mainClassName = 'uk.gov.hmcts.reform.prl.documentgenerator.DocumentGeneratorApplication'
 
 compileJava {
     options.compilerArgs << '-parameters' << '-Xlint:deprecation'
@@ -347,7 +347,7 @@ task smoke(type: Test, description: 'Runs the smoke tests.', group: 'Verificatio
     setClasspath(sourceSets.integrationTest.runtimeClasspath)
 
     useJUnit {
-        includeCategories 'uk.gov.hmcts.reform.fprl.documentgenerator.category.SmokeTest'
+        includeCategories 'uk.gov.hmcts.reform.prl.documentgenerator.category.SmokeTest'
     }
 }
 
@@ -384,10 +384,10 @@ task printVersion {
 }
 
 pitest {
-    targetClasses = ['uk.gov.hmcts.reform.fprl.documentgenerator.*']
-    excludedClasses = ['uk.gov.hmcts.reform.fprl.documentgenerator.config.*',
-                       'uk.gov.hmcts.reform.fprl.documentgenerator.domain.*',
-                       'uk.gov.hmcts.reform.fprl.documentgenerator.exception.*']
+    targetClasses = ['uk.gov.hmcts.reform.prl.documentgenerator.*']
+    excludedClasses = ['uk.gov.hmcts.reform.prl.documentgenerator.config.*',
+                       'uk.gov.hmcts.reform.prl.documentgenerator.domain.*',
+                       'uk.gov.hmcts.reform.prl.documentgenerator.exception.*']
     threads = 10
     outputFormats = ['XML', 'HTML']
     timestampedReports = false
@@ -421,16 +421,16 @@ jacocoTestCoverageVerification {
 project.tasks['sonarqube'].dependsOn jacocoTestReport
 
 def sonarExclusions = [
-    '**uk/gov/hmcts/reform/fprl/documentgenerator/domain/**/*',
-    '**uk/gov/hmcts/reform/fprl/documentgenerator/exception/*',
-    '**uk/gov/hmcts/reform/fprl/documentgenerator/**/config/**/*',
-    '**uk/gov/hmcts/reform/fprl/documentgenerator/DocumentGeneratorApplication.java'
+    '**uk/gov/hmcts/reform/prl/documentgenerator/domain/**/*',
+    '**uk/gov/hmcts/reform/prl/documentgenerator/exception/*',
+    '**uk/gov/hmcts/reform/prl/documentgenerator/**/config/**/*',
+    '**uk/gov/hmcts/reform/prl/documentgenerator/DocumentGeneratorApplication.java'
 ]
 
 sonarqube {
     properties {
-        property "sonar.projectName", "Family Private Law :: fprl-dgs"
-        property "sonar.projectKey", "fprl-dgs-api"
+        property "sonar.projectName", "Family Private Law :: prl-dgs"
+        property "sonar.projectKey", "prl-dgs-api"
         property "sonar.exclusions", sonarExclusions.join(", ")
         property "sonar.coverage.jacoco.xmlReportPaths", "${jacocoTestReport.reports.xml.destination.path}"
         property "sonar.pitest.mode", "reuseReport"

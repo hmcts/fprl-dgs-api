@@ -1,8 +1,8 @@
 # Document Generator
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Build Status](https://travis-ci.org/hmcts/fprl-dgs-api.svg?branch=master)](https://travis-ci.org/hmcts/fprl-dgs-api)
-[![codecov](https://codecov.io/gh/hmcts/fprl-dgs-api/branch/master/graph/badge.svg)](https://app.codecov.io/gh/hmcts/fprl-dgs-api)
+[![Build Status](https://travis-ci.org/hmcts/prl-dgs-api.svg?branch=master)](https://travis-ci.org/hmcts/prl-dgs-api)
+[![codecov](https://codecov.io/gh/hmcts/prl-dgs-api/branch/master/graph/badge.svg)](https://app.codecov.io/gh/hmcts/prl-dgs-api)
 [![Documentation](https://img.shields.io/static/v1?label=Documentation&message=DGS&color=informational&logo=confluence)](https://tools.hmcts.net/confluence/display/PL/PDF+document+generator)
 
 This is a document generation and template management service. This allows to generate documents based on a
@@ -61,7 +61,7 @@ az acr login --name hmcts --subscription <ask the team for the secret>
 
 Make sure you are connected to the VPN to before you run docker-compose up otherwise it won't be able to use the image.
 
-When the distribution has been created in `build/install/fprl-dgs-api` directory,
+When the distribution has been created in `build/install/prl-dgs-api` directory,
 you can run the application by executing following command:
 
 ```bash

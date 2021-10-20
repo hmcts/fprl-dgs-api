@@ -5,7 +5,7 @@ properties([
     [
         $class       : 'GithubProjectProperty',
         displayName  : 'Family Private Law Document Generator Client',
-        projectUrlStr: 'https://github.com/hmcts/fprl-dgs-api'
+        projectUrlStr: 'https://github.com/hmcts/prl-dgs-api'
     ],
     pipelineTriggers([
         [$class: 'GitHubPushTrigger']
@@ -15,12 +15,12 @@ properties([
 @Library("Infrastructure")
 
 def type = "java"
-def product = "fprl"
+def product = "prl"
 def component = "dgs"
 
 def secrets = [
-    'fprl-${env}': [
-        secret("microservicekey-fprl-dgs-api", "AUTH_PROVIDER_SERVICE_CLIENT_KEY"),
+    'prl-${env}': [
+        secret("microservicekey-prl-dgs-api", "AUTH_PROVIDER_SERVICE_CLIENT_KEY"),
         secret("docmosis-api-key", "DOCMOSIS_SERVICE_ACCESS_KEY")
     ]
 ]

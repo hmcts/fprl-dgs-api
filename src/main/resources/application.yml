@@ -1,5 +1,5 @@
 server:
-    port: ${FPRL_DOCUMENT_GENERATOR_PORT:4007}
+    port: ${PRL_DOCUMENT_GENERATOR_PORT:4007}
 
 service:
     service-auth-provider:
@@ -80,7 +80,7 @@ documentation:
 
 spring:
     application:
-        name: "fprl-dgs-api"
+        name: "prl-dgs-api"
     resources:
         static-locations:
 
@@ -117,7 +117,7 @@ management:
 logging:
     level:
         org.springframework.web: ERROR
-        uk.gov.hmcts.reform.fprl.documentgenerator: DEBUG
+        uk.gov.hmcts.reform.prl.documentgenerator: DEBUG
     pattern:
         console: "%d{yyyy-MMM-dd HH:mm:ss.SSS} %-5level [%thread] %logger{15} - %msg%n"
 
