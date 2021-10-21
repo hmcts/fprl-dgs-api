@@ -12,4 +12,9 @@
         <gav regex="true">.*</gav>
         <cve>CVE-2018-1258</cve>
     </suppress>
+    <suppress>
+        <notes> 9.0.50 </notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2021-42340</cve>
+    </suppress>
 </suppressions>
