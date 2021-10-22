@@ -78,7 +78,7 @@ public class IdamUtils {
 
     public String generateUserTokenWithNoRoles(String username, String password) {
         String userLoginDetails = String.join(":", username, password);
-        final String authHeader = "Basic " + new String(Base64.getEncoder().encode((userLoginDetails).getBytes()));
+        final String authHeader = "Bearer " + new String(Base64.getEncoder().encode((userLoginDetails).getBytes()));
 
         Response response = SerenityRest.given()
             .header("Authorization", authHeader)
@@ -103,7 +103,7 @@ public class IdamUtils {
     private String idamCodeUrl() {
         return idamUserBaseUrl + "/oauth2/authorize"
             + "?response_type=code"
-            + "&client_id=divorce"
+            + "&client_id=xuiwebapp"
             + "&redirect_uri=" + idamRedirectUri;
     }
 
