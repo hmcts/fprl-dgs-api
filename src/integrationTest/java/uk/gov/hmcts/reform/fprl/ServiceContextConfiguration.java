@@ -33,9 +33,4 @@ public class ServiceContextConfiguration {
 
         return new ServiceAuthTokenGenerator(secret, microService, serviceAuthorisationApi);
     }
-
-    @Bean
-    public IdamUtils getIdamUtil() {
-        return new IdamUtils();
-    }
 }
