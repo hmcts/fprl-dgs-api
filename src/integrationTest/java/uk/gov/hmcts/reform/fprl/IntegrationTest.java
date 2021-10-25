@@ -23,7 +23,8 @@ import javax.annotation.PostConstruct;
 @ContextConfiguration(classes = {ServiceContextConfiguration.class})
 public abstract class IntegrationTest {
 
-    private static final String GENERIC_PASSWORD = "Nagoya0102";
+    @Value("${idam.user.aat.password}")
+    private String aatPassword;
 
     @Value("${document.generator.base.uri}")
     protected String fprlDocumentGeneratorBaseURI;
@@ -71,13 +72,11 @@ public abstract class IntegrationTest {
 
     private synchronized String getUserToken() {
         username = "fprl_caseworker_solicitor@mailinator.com";
-
         if (userToken == null) {
-            idamTestSupportUtil.createCaseworkerUserInIdam(username, GENERIC_PASSWORD);
+            idamTestSupportUtil.createCaseworkerUserInIdam(username, aatPassword);
 
-            userToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, GENERIC_PASSWORD);
+            userToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, aatPassword);
         }
-
         return userToken;
     }
 

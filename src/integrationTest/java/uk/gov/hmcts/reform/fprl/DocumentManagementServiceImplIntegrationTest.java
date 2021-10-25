@@ -2,9 +2,12 @@ package uk.gov.hmcts.reform.fprl;
 
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.http.HttpStatus;
 import org.junit.Test;
 
 import java.util.List;
+
+import static org.junit.Assert.assertEquals;
 
 @Slf4j
 public class DocumentManagementServiceImplIntegrationTest extends IntegrationTest {
@@ -22,14 +25,18 @@ public class DocumentManagementServiceImplIntegrationTest extends IntegrationTes
 
         String requestBody = ResourceLoader.loadJson(VALID_INPUT_JSON);
 
-
-        //GeneratedDocumentInfo generatedDocumentInfo = GeneratedDocumentInfo.builder().url(getUrl).mimeType().createdOn().hashToken().build();
         Response response = callprlDocumentGenerator(requestBody);
+
+//        assertEquals(
+//            HttpStatus.SC_OK,
+//            response.getStatusCode()
+//        );
 
         List<String> jsonResponse = response.jsonPath().getList("$");
 
         for (String json: jsonResponse) {
             log.debug("Json: ", json);
         }
+
     }
 }

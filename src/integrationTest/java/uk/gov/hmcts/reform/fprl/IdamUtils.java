@@ -11,7 +11,9 @@ import java.util.Base64;
 import java.util.UUID;
 
 public class IdamUtils {
-    private static final String GENERIC_PASSWORD = "genericPassword123";
+
+    @Value("${idam.user.genericpassword}")
+    private String genericPassword;
 
     @Value("${auth.idam.client.baseUrl}")
     private String idamUserBaseUrl;
@@ -32,8 +34,8 @@ public class IdamUtils {
 
     public String generateNewUserAndReturnToken() {
         String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
-        createUserInIdam(username, GENERIC_PASSWORD);
-        return generateUserTokenWithNoRoles(username, GENERIC_PASSWORD);
+        createUserInIdam(username, genericPassword);
+        return generateUserTokenWithNoRoles(username, genericPassword);
     }
 
     private void createUserInIdam(String username, String password) {
@@ -54,16 +56,16 @@ public class IdamUtils {
     private void createUserInIdam() {
         idamUsername = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
 
-        createUserInIdam(idamUsername, GENERIC_PASSWORD);
+        createUserInIdam(idamUsername, genericPassword);
     }
 
     public void createCaseworkerUserInIdam(String username, String password) {
         CreateUserRequest userRequest = CreateUserRequest.builder()
             .email(username)
             .password(password)
-            .forename("Test")
-            .surname("User")
-            .roles(new UserCode[] { UserCode.builder().code("caseworker-divorce-courtadmin").build() })
+            .forename("Henry")
+            .surname("Harper")
+            .roles(new UserCode[] { UserCode.builder().code("caseworker-privatelaw-solicitor").build() })
             .build();
 
         SerenityRest.given()
@@ -104,16 +106,16 @@ public class IdamUtils {
         return idamUserBaseUrl + "/oauth2/authorize"
             + "?response_type=code"
             + "&client_id=xuiwebapp"
-            + "&redirect_uri=" + idamRedirectUri;
+            + "&redirect_uri=" + idamRedirectUri; //https://manage-case.aat.platform.hmcts.net/cases
     }
 
     private String idamTokenUrl(String code) {
 
         return idamUserBaseUrl + "/oauth2/token"
             + "?code=" + code
-            + "&client_id=divorce"
+            + "&client_id=xuiwebapp"
             + "&client_secret=" + idamSecret
-            + "&redirect_uri=" + idamRedirectUri
+            + "&redirect_uri=" + idamRedirectUri  //https://manage-case.aat.platform.hmcts.net/cases
             + "&grant_type=authorization_code";
     }
 }
