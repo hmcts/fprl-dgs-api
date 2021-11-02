@@ -22,11 +22,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-
-import java.io.File;
-
 import java.io.IOException;
-
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -117,7 +113,7 @@ public class CdAmApiConsumerTest {
 
     }
 
-        @Pact(provider = "CCD_CASE_DOCS_AM_API", consumer = "fprl-dgs-api")
+    @Pact(provider = "CCD_CASE_DOCS_AM_API", consumer = "fprl-dgs-api")
     RequestResponsePact uploadDocument(PactDslWithProvider builder) throws JSONException, IOException {
         // @formatter:off
 

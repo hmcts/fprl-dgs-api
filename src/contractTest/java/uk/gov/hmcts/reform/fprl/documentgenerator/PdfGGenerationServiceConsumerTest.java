@@ -106,15 +106,15 @@ public class PdfGGenerationServiceConsumerTest {
     @Test
     @PactTestFor(pactMethod = "generatePdfFromTemplate")
     public void verifyGeneratePdfFromTemplatePact(MockServer mockServer) throws IOException, JSONException {
-//        Map<String, Object> placeholders = new HashMap<>();
-//        placeholders.put(CASE_DETAILS, new HashMap<>(ImmutableMap.of(
-//                "case_data", new HashMap<>()
-//        )));
-//
-//        when(templateManagementService.getTemplateByName("someTemplateName")).thenReturn(template.getBytes());
-//        when(serviceTokenGenerator.generate()).thenReturn(someServiceAuthToken);
-//
-//        byte[] response = docmosisPDFGenerationService.generate("someTemplateName", placeholders);
+        //Map<String, Object> placeholders = new HashMap<>();
+        //placeholders.put(CASE_DETAILS, new HashMap<>(ImmutableMap.of(
+        //                "case_data", new HashMap<>()
+        //)));
+        //
+        //when(templateManagementService.getTemplateByName("someTemplateName")).thenReturn(template.getBytes());
+        //when(serviceTokenGenerator.generate()).thenReturn(someServiceAuthToken);
+        //
+        //byte[] response = docmosisPDFGenerationService.generate("someTemplateName", placeholders);
 
         HttpClient httpClient = HttpClientBuilder.create().build();
 
