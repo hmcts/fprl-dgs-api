@@ -1,46 +1,60 @@
 package uk.gov.hmcts.reform.fprl;
 
-import feign.Response;
-import org.hamcrest.Matchers;
+import io.restassured.response.Response;
+import net.serenitybdd.rest.SerenityRest;
+import org.apache.http.HttpStatus;
+import org.junit.Assert;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import uk.gov.hmcts.reform.fprl.documentgenerator.controller.DocumentGeneratorController;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.TestPropertySource;
 
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@RunWith(SpringRunner.class)
+@SpringBootTest(classes = DocumentGeneratorControllerIntegrationTest.class)
 @AutoConfigureMockMvc
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)
-public class DocumentGeneratorControllerIntegrationTest {
+@TestPropertySource("/application-local.properties")
+public class DocumentGeneratorControllerIntegrationTest extends IntegrationTest {
 
     @Autowired
-    private MockMvc mockMvc;
+    IdamUtils idamUtilsSupport;
+
+    private static final String VALID_INPUT_JSON = "documentgenerator/documents/jsoninput/DA-granted-letter.json";
+
+    @Value("${prl.document.generator.uri}")
+    private String prlDocumentGeneratorURI;
 
     @Test
     public void givenTemplateShouldGeneratePdf_VerifyResponse() throws Exception {
 
-        final String EXPC_URL = "http://dm-store-aat.service.core-compute-aat.internal/documents/*";
-        final String MIME_TYPE = "application/pdf";
-        //when
-        ResultActions response = this.mockMvc.perform(MockMvcRequestBuilders.post("/generatePdf")
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON));
-        response.andExpect(status().isCreated());
-        response.andExpect( jsonPath("$.url", Matchers.contains(EXPC_URL)))
-           .andExpect(jsonPath("$.mimeType").value(MIME_TYPE));
+        String requestBody = ResourceLoader.loadJson(VALID_INPUT_JSON);
 
-        System.out.println("Status Code: " +response.andExpect(status().isOk()) );
+        Response response = SerenityRest.given()
+                                .contentType("application/json")
+                                .header("Authorization", getAuthorizationToken())
+                                .body(requestBody)
+                                .when()
+                                .post(prlDocumentGeneratorURI)
+                                .andReturn();
 
+        Assert.assertEquals(response.getStatusCode(), HttpStatus.SC_OK);
     }
 
+    @Test
+    public void generatePdfWithWrongURI_ShouldThrowNotFound404() throws Exception {
+        String requestBody = ResourceLoader.loadJson(VALID_INPUT_JSON);
+
+        Response response = SerenityRest.given()
+            .contentType("application/json")
+            .header("Authorization", getAuthorizationToken())
+            .body(requestBody)
+            .when()
+            .post(prlDocumentGeneratorURI + "/test")
+            .andReturn();
+
+        Assert.assertEquals(response.getStatusCode(), HttpStatus.SC_NOT_FOUND);
+    }
 }

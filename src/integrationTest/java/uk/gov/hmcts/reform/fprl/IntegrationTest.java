@@ -3,11 +3,13 @@ package uk.gov.hmcts.reform.fprl;
 import io.restassured.response.Response;
 import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.junit.spring.integration.SpringIntegrationMethodRule;
+import org.apache.http.entity.ContentType;
 import org.assertj.core.util.Strings;
 import org.junit.Rule;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
@@ -15,6 +17,7 @@ import uk.gov.hmcts.reform.authorisation.generators.AuthTokenGenerator;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.URL;
+import java.util.Base64;
 import java.util.UUID;
 import javax.annotation.PostConstruct;
 
@@ -23,23 +26,20 @@ import javax.annotation.PostConstruct;
 @ContextConfiguration(classes = {ServiceContextConfiguration.class})
 public abstract class IntegrationTest {
 
-    @Value("${idam.user.aat.password}")
-    private String aatPassword;
+    @Value("${prl.document.generator.uri}")
+    protected String prlDocumentGeneratorURI;
 
-    @Value("${document.generator.base.uri}")
-    protected String fprlDocumentGeneratorBaseURI;
-
-    @Value("${fprl.document.generator.uri}")
-    protected String fprlDocumentGeneratorURI;
-
-    @Value("${fprl.document.generateDraft.uri}")
-    protected String fprlDocumentGenerateDraftURI;
+    @Value("${prl.document.generateDraft.uri}")
+    protected String prlDocumentGenerateDraftURI;
 
     @Value("${document.management.store.baseUrl}")
     protected String documentManagementURL;
 
     @Value("${http.proxy:#{null}}")
     protected String httpProxy;
+
+    @Value("${idam.user.genericpassword}")
+    protected String aatPassword;
 
     @Autowired
     private AuthTokenGenerator authTokenGenerator;
@@ -64,20 +64,51 @@ public abstract class IntegrationTest {
         }
     }
 
-    public Response callprlDocumentGenerator(String requestBody) {
+    public Response callPrlDocumentGenerator(String requestBody) {
         return DocumentGeneratorUtil.generatePDF(requestBody,
-            fprlDocumentGeneratorURI,
+            prlDocumentGeneratorURI,
             getUserToken());
     }
 
+    public Response callInvalidPrlDocumentGenerator(String requestBody) {
+        return DocumentGeneratorUtil.generatePDF(requestBody,
+            prlDocumentGeneratorURI,
+            getToken());
+    }
+
+    private String getToken() {
+        String authHeaderToken = null;
+        String userLoginDetails = String.join(":", username, aatPassword);
+        authHeaderToken = "Bearer " + new String(Base64.getEncoder().encode((userLoginDetails).getBytes()));
+
+        return authHeaderToken;
+    }
+
     private synchronized String getUserToken() {
-        username = "fprl_caseworker_solicitor@mailinator.com";
+        username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
+
         if (userToken == null) {
             idamTestSupportUtil.createCaseworkerUserInIdam(username, aatPassword);
 
             userToken = idamTestSupportUtil.generateUserTokenWithNoRoles(username, aatPassword);
         }
+
         return userToken;
+    }
+
+    public String getAuthorizationToken() {
+        String authToken = getUserToken();
+        return authToken;
+    }
+
+    public String getStoredUserToken() {
+        return userToken;
+    }
+
+    public String constructHealthUrl(String apiName) {
+        String url = null;
+        url = idamTestSupportUtil.generateUrlForValidMicroservice(apiName);
+        return url;
     }
 
     private void configProxyHost() {

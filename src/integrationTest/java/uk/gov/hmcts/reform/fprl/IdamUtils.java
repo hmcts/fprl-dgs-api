@@ -1,6 +1,7 @@
 package uk.gov.hmcts.reform.fprl;
 
 import io.restassured.response.Response;
+import lombok.extern.slf4j.Slf4j;
 import net.serenitybdd.rest.SerenityRest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
@@ -10,6 +11,7 @@ import uk.gov.hmcts.reform.fprl.model.UserCode;
 import java.util.Base64;
 import java.util.UUID;
 
+@Slf4j
 public class IdamUtils {
 
     @Value("${idam.user.genericpassword}")
@@ -21,16 +23,27 @@ public class IdamUtils {
     @Value("${auth.idam.client.redirectUri}")
     private String idamRedirectUri;
 
+    @Value("${idam.client.aat.authorize.context-path}")
+    private String idamAuthorizeContextPath;
+
+    @Value("${auth.idam.client.clientId}")
+    private String idamAuthClientID;
+
     @Value("${auth.idam.client.secret}")
     private String idamSecret;
 
+    @Value("${idam.s2s-auth.url}")
+    private String idamS2sAuthUrl;
+
+    @Value("${docmosis.service.base.url}")
+    private String docmosisBaseUrl;
+
+    @Value("${ccd.document.base.url}")
+    private String ccdDocumentBaseUrl;
+
     private String idamUsername;
 
-    private String idamPassword;
-
-    private String testUserJwtToken;
-
-    private String testCaseworkerJwtToken;
+    private int responseCode;
 
     public String generateNewUserAndReturnToken() {
         String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
@@ -44,7 +57,7 @@ public class IdamUtils {
             .password(password)
             .forename("Test")
             .surname("User")
-            .roles(new UserCode[] { UserCode.builder().code("citizen").build() })
+            .roles(new UserCode[]{UserCode.builder().code("citizen").build()})
             .build();
 
         SerenityRest.given()
@@ -65,7 +78,7 @@ public class IdamUtils {
             .password(password)
             .forename("Henry")
             .surname("Harper")
-            .roles(new UserCode[] { UserCode.builder().code("caseworker-privatelaw-solicitor").build() })
+            .roles(new UserCode[]{UserCode.builder().code("caseworker-privatelaw-solicitor").build()})
             .build();
 
         SerenityRest.given()
@@ -74,19 +87,18 @@ public class IdamUtils {
             .post(idamCreateUrl());
     }
 
-    private String idamCreateUrl() {
-        return idamUserBaseUrl + "/testing-support/accounts";
-    }
-
     public String generateUserTokenWithNoRoles(String username, String password) {
         String userLoginDetails = String.join(":", username, password);
-        final String authHeader = "Bearer " + new String(Base64.getEncoder().encode((userLoginDetails).getBytes()));
+        final String authHeader = "Basic " + new String(Base64.getEncoder().encode(userLoginDetails.getBytes()));
+        Response response = null;
 
-        Response response = SerenityRest.given()
-            .header("Authorization", authHeader)
-            .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-            .relaxedHTTPSValidation()
-            .post(idamCodeUrl());
+        response = SerenityRest.given()
+                .header("Authorization", authHeader)
+                .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .relaxedHTTPSValidation()
+                .post(idamCodeUrl());
+
+        responseCode = response.getStatusCode();
 
         if (response.getStatusCode() >= 300) {
             throw new IllegalStateException("Token generation failed with code: " + response.getStatusCode()
@@ -94,28 +106,54 @@ public class IdamUtils {
         }
 
         response = SerenityRest.given()
-            .relaxedHTTPSValidation()
             .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+            .relaxedHTTPSValidation()
             .post(idamTokenUrl(response.getBody().path("code")));
+
+        assert response.getStatusCode() == 200 : "Error generating code from IDAM: " + response.getStatusCode();
 
         String token = response.getBody().path("access_token");
         return "Bearer " + token;
     }
 
+    public int getResponseCode() {
+        return responseCode;
+    }
+
+
+    public String generateUrlForValidMicroservice(String microservicename) {
+        String generatedURL = null;
+
+        if (microservicename.equals("IDAM")) {
+            generatedURL = idamUserBaseUrl + "/health";
+        } else if (microservicename.equals("DOCMOSIS")) {
+            generatedURL = docmosisBaseUrl + "/health";
+        } else if (microservicename.equals("CCDDOCUMENT")) {
+            generatedURL = ccdDocumentBaseUrl + "/health";
+        }
+        return generatedURL;
+    }
+
+    private String idamCreateUrl() {
+        return idamUserBaseUrl + "/testing-support/accounts";
+    }
+
     private String idamCodeUrl() {
-        return idamUserBaseUrl + "/oauth2/authorize"
+        return idamUserBaseUrl + idamAuthorizeContextPath
             + "?response_type=code"
-            + "&client_id=xuiwebapp"
-            + "&redirect_uri=" + idamRedirectUri; //https://manage-case.aat.platform.hmcts.net/cases
+            + "&client_id=" + idamAuthClientID
+            + "&redirect_uri=" + idamRedirectUri;
     }
 
     private String idamTokenUrl(String code) {
 
-        return idamUserBaseUrl + "/oauth2/token"
+        return idamUserBaseUrl + idamAuthorizeContextPath
             + "?code=" + code
-            + "&client_id=xuiwebapp"
+            + "&client_id=" + idamAuthClientID
             + "&client_secret=" + idamSecret
-            + "&redirect_uri=" + idamRedirectUri  //https://manage-case.aat.platform.hmcts.net/cases
+            + "&redirect_uri=" + idamRedirectUri
             + "&grant_type=authorization_code";
+
     }
+
 }
