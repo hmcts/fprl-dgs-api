@@ -37,6 +37,9 @@ public class DocumentManagementServiceImplIntegrationTest extends IntegrationTes
     @Value("${auth.idam.client.baseUrl}")
     private String idamUserBaseUrl;
 
+    @Value("${ccd.document.gateway.url}")
+    private String ccdGatewayUrl;
+
     @Test
     public void givenTemplateAndJsonInput_ReturnStatus200() throws Exception {
 
@@ -127,7 +130,7 @@ public class DocumentManagementServiceImplIntegrationTest extends IntegrationTes
 
         String documentId = dmStoreUrlParts[dmStoreUrlParts.length - 1];
 
-        String url = "https://gateway-ccd.aat.platform.hmcts.net/documents/" + documentId; //todo url
+        String url = ccdGatewayUrl + "/" + documentId;
 
         String bearerToken = getAuthorizationToken();
 
@@ -152,7 +155,7 @@ public class DocumentManagementServiceImplIntegrationTest extends IntegrationTes
 
         String documentId = dmStoreUrlParts[dmStoreUrlParts.length - 1];
 
-        String url = "https://gateway-ccd.aat.platform.hmcts.net/documents/" + documentId; //todo url in properties
+        String url = ccdGatewayUrl + "/" + documentId;
 
         HttpGet request = new HttpGet(url);
         request.setHeader(HttpHeaders.AUTHORIZATION, "Bearer ***INVALID***");

@@ -85,7 +85,7 @@ public abstract class IntegrationTest {
     }
 
     private synchronized String getUserToken() {
-        username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
+        username = "simulate-delivered" + UUID.randomUUID() + "@testhmcts.net";
 
         if (userToken == null) {
             idamTestSupportUtil.createCaseworkerUserInIdam(username, aatPassword);
