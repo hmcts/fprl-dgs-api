@@ -11,5 +11,20 @@
         </notes>
         <gav regex="true">.*</gav>
         <cve>CVE-2018-1258</cve>
+        <cve>CVE-2021-42340</cve>
+    </suppress>
+    <suppress>
+        <notes>
+            TOmcat 9.5.0
+        </notes>
+        <gav regex="true">.*</gav>
+        <cve>CVE-2021-42340</cve>
+    </suppress>
+    <suppress>
+        <notes><![CDATA[
+   spring-core-5.2.15.RELEASE.jar
+   ]]></notes>
+        
+        <cve>CVE-2021-22096</cve>
     </suppress>
 </suppressions>
