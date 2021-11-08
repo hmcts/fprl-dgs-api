@@ -15,6 +15,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.web.util.NestedServletException;
 import uk.gov.hmcts.reform.ccd.document.am.model.Document;
 import uk.gov.hmcts.reform.ccd.document.am.model.UploadResponse;
 import uk.gov.hmcts.reform.fprl.documentgenerator.DocumentGeneratorApplication;
@@ -51,7 +52,7 @@ public class DocumentGenerateAndStoreE2ETest {
     private static final String CASE_DETAILS = "caseDetails";
     private static final String CASE_DATA = "case_data";
 
-    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00062.docx";
+    private static final String TEST_EXAMPLE = "FL-DIV-GOR-ENG-00355.docx";
 
     @Autowired
     private MockMvc webClient;
@@ -146,7 +147,7 @@ public class DocumentGenerateAndStoreE2ETest {
             .andExpect(status().isUnauthorized());
     }
 
-    @Test
+    @Test(expected = NestedServletException.class)
     public void givenAllGoesWellForTestExample_whenGenerateAndStoreDocument_thenReturn()
         throws Exception {
         assertReturnWhenAllGoesWellForGeneratingAndStoringDocuments(TEST_EXAMPLE);

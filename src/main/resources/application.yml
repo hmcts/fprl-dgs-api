@@ -12,27 +12,26 @@ docmosis:
         pdf-service:
             accessKey: ${DOCMOSIS_SERVICE_ACCESS_KEY:replace_me}
             renderEndpoint: "/rs/render"
-            uri: ${DOCMOSIS_SERVICE_BASE_URL:https://docmosis.aat.platform.hmcts.net}${docmosis.service.pdf-service.renderEndpoint}
-            health: ${DOCMOSIS_SERVICE_BASE_URL:https://docmosis.aat.platform.hmcts.net}/health
+            uri: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}${docmosis.service.pdf-service.renderEndpoint}
+            health: ${DOCMOSIS_SERVICE_BASE_URL:http://localhost:5501}/health
             devMode: ${DOCMOSIS_SERVICE_DEV_MODE_FLAG:false}
 
 case_document_am:
-    url: ${CCD_CASE_DOCS_AM_API:http://ccd-case-document-am-api-aat.service.core-compute-aat.internal}
-    CASE_DOCUMENT_S2S_AUTHORISED_SERVICES: fprl_dgs_api
-
+    url: ${CCD_CASE_DOCS_AM_API:http://localhost:5170}
 
 auth:
-    idam:
-        client:
-            url: ${IDAM_CLIENT_BASE_URL:https://idam-api.aat.platform.hmcts.net}
-            redirect_uri: ${IDAM_API_REDIRECT_URL:https://manage-case.aat.platform.hmcts.net/oauth2/callback}
-            secret: ${IDAM_CLIENT_SECRET:replace_me}
+    provider:
+        service:
+            client:
+                port: 4502
+                baseUrl: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://localhost:4502}
+                tokenTimeToLiveInSeconds: 900
 
 idam:
     s2s-auth:
         microservice: ${AUTH_PROVIDER_SERVICE_CLIENT_MICROSERVICE:fprl_dgs_api}
-        totp_secret: ${AUTH_PROVIDER_SERVICE_CLIENT_KEY:replace_me}
-        url: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://rpe-service-auth-provider-aat.service.core-compute-aat.internal}
+        totp_secret: ${AUTH_PROVIDER_SERVICE_CLIENT_KEY:AAAAAAAAAAAAAAAA}
+        url: ${AUTH_PROVIDER_SERVICE_CLIENT_BASEURL:http://localhost:4502}
 
 http:
     connect:
@@ -113,7 +112,7 @@ management:
                 include: info, health, metrics
     health:
         case-document-am-api:
-            enabled: true
+            enabled: false
 
 logging:
     level:
