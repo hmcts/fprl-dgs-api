@@ -157,8 +157,7 @@ public class DocumentGenerateAndStoreE2ETest {
         final Map<String, Object> caseData = Collections.emptyMap();
         final Map<String, Object> values = new HashMap<>();
         values.put(CASE_DETAILS, Collections.singletonMap(CASE_DATA, caseData));
-        final String s2sAuthToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2dnZWRJbkFzIjoiYWRtaW4iLCJpYXQiOjE0MjI"
-            + "3Nzk2Mzh9.gzSraSYS8EXBxLN_oWnFSRgCzcmJmMjLiuyu5CSpyHI";
+        final String s2sAuthToken = null;
         final UploadResponse uploadResponse = new UploadResponse(List.of(mockCaseDocsDocuments()));
 
         mockDocmosisPdfService(HttpStatus.OK, new byte[]{1});
