@@ -45,11 +45,6 @@ public class IdamUtils {
 
     private int responseCode;
 
-    public String generateNewUserAndReturnToken() {
-        String username = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
-        createUserInIdam(username, genericPassword);
-        return generateUserTokenWithNoRoles(username, genericPassword);
-    }
 
     private void createUserInIdam(String username, String password) {
         CreateUserRequest userRequest = CreateUserRequest.builder()
@@ -64,12 +59,6 @@ public class IdamUtils {
             .header("Content-Type", "application/json")
             .body(ResourceLoader.objectToJson(userRequest))
             .post(idamCreateUrl());
-    }
-
-    private void createUserInIdam() {
-        idamUsername = "simulate-delivered" + UUID.randomUUID() + "@notifications.service.gov.uk";
-
-        createUserInIdam(idamUsername, genericPassword);
     }
 
     public void createCaseworkerUserInIdam(String username, String password) {
@@ -115,11 +104,6 @@ public class IdamUtils {
         String token = response.getBody().path("access_token");
         return "Bearer " + token;
     }
-
-    public int getResponseCode() {
-        return responseCode;
-    }
-
 
     public String generateUrlForValidMicroservice(String microservicename) {
         String generatedURL = null;
