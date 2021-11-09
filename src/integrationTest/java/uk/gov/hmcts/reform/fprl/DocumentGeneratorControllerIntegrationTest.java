@@ -14,9 +14,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 @AutoConfigureMockMvc
 public class DocumentGeneratorControllerIntegrationTest extends IntegrationTest {
 
-    @Autowired
-    IdamUtils idamUtilsSupport;
-
     private static final String VALID_INPUT_JSON = "documentgenerator/documents/jsoninput/DA-granted-letter.json";
 
     @Value("${prl.document.generator.uri}")
