@@ -96,7 +96,7 @@ public class IdamUtils {
         }
 
         System.out.println(response);
-        System.out.println(response.getBody());
+        System.out.println(response.getBody().toString());
 
         response = SerenityRest.given()
             .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
