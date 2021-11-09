@@ -27,6 +27,9 @@ public class IdamUtils {
     @Value("${idam.client.aat.authorize.context-path}")
     private String idamAuthorizeContextPath;
 
+    @Value("${idam.client.aat.token.context-path}")
+    private String idamTokenContextPath;
+
     @Value("${auth.idam.client.clientId}")
     private String idamAuthClientID;
 
@@ -95,9 +98,6 @@ public class IdamUtils {
                 + " body: " + response.getBody().prettyPrint());
         }
 
-        System.out.println(response);
-        System.out.println(response.getBody().toString());
-
         response = SerenityRest.given()
             .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
             .relaxedHTTPSValidation()
@@ -141,14 +141,14 @@ public class IdamUtils {
 
     private String idamTokenUrl(String code) {
 
-        System.out.println(idamUserBaseUrl + idamAuthorizeContextPath
+        System.out.println(idamUserBaseUrl + idamTokenContextPath
             + "?code=" + code
             + "&client_id=" + idamAuthClientID
             + "&client_secret=" + idamSecret
             + "&redirect_uri=" + idamRedirectUri
             + "&grant_type=authorization_code");
 
-        return idamUserBaseUrl + idamAuthorizeContextPath
+        return idamUserBaseUrl + idamTokenContextPath
             + "?code=" + code
             + "&client_id=" + idamAuthClientID
             + "&client_secret=" + idamSecret
