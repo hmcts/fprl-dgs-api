@@ -19,6 +19,9 @@ public class DocumentGeneratorControllerIntegrationTest extends IntegrationTest 
     @Value("${prl.document.generator.uri}")
     private String prlDocumentGeneratorURI;
 
+    @Autowired
+    IdamUtils idamUtils;
+
     @Test
     public void givenTemplateShouldGeneratePdf_VerifyResponse() throws Exception {
 
