@@ -95,6 +95,9 @@ public class IdamUtils {
                 + " body: " + response.getBody().prettyPrint());
         }
 
+        System.out.println(response);
+        System.out.println(response.getBody());
+
         response = SerenityRest.given()
             .header("Content-Type", MediaType.APPLICATION_FORM_URLENCODED_VALUE)
             .relaxedHTTPSValidation()
@@ -131,6 +134,13 @@ public class IdamUtils {
     }
 
     private String idamTokenUrl(String code) {
+
+        System.out.println(idamUserBaseUrl + idamAuthorizeContextPath
+            + "?code=" + code
+            + "&client_id=" + idamAuthClientID
+            + "&client_secret=" + idamSecret
+            + "&redirect_uri=" + idamRedirectUri
+            + "&grant_type=authorization_code");
 
         return idamUserBaseUrl + idamAuthorizeContextPath
             + "?code=" + code
