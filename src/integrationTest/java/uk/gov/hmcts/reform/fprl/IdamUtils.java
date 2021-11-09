@@ -127,6 +127,12 @@ public class IdamUtils {
     }
 
     private String idamCodeUrl() {
+
+        System.out.println(idamUserBaseUrl + idamAuthorizeContextPath
+            + "?response_type=code"
+            + "&client_id=" + idamAuthClientID
+            + "&redirect_uri=" + idamRedirectUri);
+
         return idamUserBaseUrl + idamAuthorizeContextPath
             + "?response_type=code"
             + "&client_id=" + idamAuthClientID
